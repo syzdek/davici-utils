@@ -66,6 +66,9 @@
 #undef   DAVUTL_SHORT_OPT
 #define  DAVUTL_SHORT_OPT "hqu:Vv"
 
+#undef   DAVUTL_SHORT_IKE
+#define  DAVUTL_SHORT_IKE "C:c:I:i:n"
+
 #undef   DAVUTL_LONG_OPT
 #define  DAVUTL_LONG_OPT \
    { "help",            no_argument,         NULL, 'h' }, \
@@ -75,6 +78,14 @@
    { "version",         no_argument,         NULL, 'V' }, \
    { "verbose",         no_argument,         NULL, 'v' }, \
    { NULL, 0, NULL, 0 }
+
+#undef   DAVUTL_LONG_IKE
+#define  DAVUTL_LONG_IKE \
+   { "ike",             required_argument,   NULL, 'i' }, \
+   { "ike-id",          required_argument,   NULL, 'I' }, \
+   { "child",           required_argument,   NULL, 'c' }, \
+   { "child-id",        required_argument,   NULL, 'C' }, \
+   { "noblock",         required_argument,   NULL, 'n' },
 
 
 //////////////
@@ -391,6 +402,21 @@ static my_widget_t my_widget_map[] =
       .func_usage    = NULL,
    },
 
+   // list-sas widget
+   {  .name          = "list-sas",
+      .aliases       = NULL,
+      .desc          = "lists active IKE_SAs and associated CHILD_SAs",
+      .davici_cmd    = "list-sas",
+      .davici_event  = "list-sa",
+      .usage         = "[OPTIONS]",
+      .short_opt     = DAVUTL_SHORT_OPT DAVUTL_SHORT_IKE,
+      .long_opt      = DAVUTL_LONG( DAVUTL_LONG_IKE ),
+      .arg_min       = 0,
+      .arg_max       = 0,
+      .func_exec     = &my_widget_generic_command,
+      .func_usage    = NULL,
+   },
+
    // reload-settings widget
    {  .name          = "reload-settings",
       .aliases       = NULL,
@@ -562,9 +588,29 @@ my_arguments(
          case 0:        /* long options toggles */
          break;
 
+         case 'C':
+            cnf->child_sa_id = optarg;
+            break;
+
+         case 'c':
+            cnf->child_sa = optarg;
+            break;
+
          case 'h':
             my_usage(cnf);
             return(-1);
+
+         case 'I':
+            cnf->ike_sa_id = optarg;
+            break;
+
+         case 'i':
+            cnf->ike_sa = optarg;
+            break;
+
+         case 'n':
+            cnf->flags |= MY_FLG_NOBLOCK;
+            break;
 
          case 'q':
             cnf->quiet = 1;
@@ -824,7 +870,12 @@ my_usage(
    {  printf("Usage: %s %s\n", cnf->prog_name, widget_help);
    };
    printf("OPTIONS:\n");
+   if ((strchr(short_opt, 'C'))) printf("  -C id, --child-id=id      filter CHILD_SAs by unique identifier\n");
+   if ((strchr(short_opt, 'c'))) printf("  -c name, --child=name     filter CHILD_SAs by name\n");
    if ((strchr(short_opt, 'h'))) printf("  -h, --help                print this help and exit\n");
+   if ((strchr(short_opt, 'I'))) printf("  -I id, --ike-id=id        filter IKE_SAs by unique identifier\n");
+   if ((strchr(short_opt, 'i'))) printf("  -i name, --ike=name       filter IKE_SAs by name\n");
+   if ((strchr(short_opt, 'n'))) printf("  -n, --noblock             don't wait for IKE_SAs in use\n");
    if ((strchr(short_opt, 'q'))) printf("  -q, --quiet, --silent     do not print messages\n");
    if ((strchr(short_opt, 'u'))) printf("  -u path, --socket=path    path to vici socket\n");
    if ((strchr(short_opt, 'V'))) printf("  -V, --version             print version number and exit\n");
@@ -1074,6 +1125,18 @@ my_widget_generic_command(
    {  fprintf(stderr, "%s: %s\n", my_prog_name(cnf), strerror(-rc));
       return(1);
    };
+
+   // add arguments
+   if ((cnf->child_sa))
+      davici_kv(cnf->davici_req, "child", cnf->child_sa, (unsigned)strlen(cnf->child_sa));
+   if ((cnf->child_sa_id))
+      davici_kv(cnf->davici_req, "child-id", cnf->child_sa_id, (unsigned)strlen(cnf->child_sa_id));
+   if ((cnf->ike_sa))
+      davici_kv(cnf->davici_req, "ike", cnf->ike_sa, (unsigned)strlen(cnf->ike_sa));
+   if ((cnf->ike_sa_id))
+      davici_kv(cnf->davici_req, "ike-id", cnf->ike_sa_id, (unsigned)strlen(cnf->ike_sa_id));
+   if ((cnf->flags & MY_FLG_NOBLOCK))
+      davici_kv(cnf->davici_req, "noblock", "yes", (unsigned)strlen("yes"));
 
    // queue command
    if (!(widget->davici_event))

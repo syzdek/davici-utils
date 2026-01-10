@@ -93,6 +93,8 @@
 #undef MY_SOCK_PATH
 #define MY_SOCK_PATH "/var/run/charon.vici"
 
+#define MY_FLG_NOBLOCK     0x00000001
+
 
 //////////////////
 //              //
@@ -111,11 +113,15 @@ struct _my_config
    int                           symlinked;
    int                           queued;
    int                           argc;
-   int                           _int_padding;
+   int                           flags;
    struct pollfd                 pollfd;
    char * const *                argv;
    const char *                  prog_name;
    const char *                  vici_sockpath;
+   const char *                  ike_sa;
+   const char *                  ike_sa_id;
+   const char *                  child_sa;
+   const char *                  child_sa_id;
    const my_widget_t *           widget;
    struct davici_conn *          davici_conn;
    struct davici_request *       davici_req;
