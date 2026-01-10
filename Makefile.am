@@ -76,17 +76,17 @@ info_TEXINFOS				=
 noinst_LTLIBRARIES			=
 noinst_LIBRARIES			=
 noinst_HEADERS				=
-noinst_PROGRAMS				= examples/example-command \
-					  examples/example-event \
-					  examples/example-multiple \
-					  examples/example-stream
+noinst_PROGRAMS				=
 bin_PROGRAMS				=
 bin_SCRIPTS				=
 pkgdata_DATA				=
 sbin_SCRIPTS				=
 sbin_PROGRAMS				=
 mod_LTLIBRARIES				=
-EXTRA_PROGRAMS				=
+EXTRA_PROGRAMS				= examples/example-command \
+					  examples/example-event \
+					  examples/example-multiple \
+					  examples/example-stream
 EXTRA					=
 
 
@@ -110,9 +110,19 @@ CLEANFILES				= $(builddir)/a.out   $(srcdir)/a.out \
 					  @PACKAGE_TARNAME@-*.txz \
 					  @PACKAGE_TARNAME@-*.zip
 DISTCHECK_CONFIGURE_FLAGS		= --enable-strictwarnings \
+					  --enable-examples \
 					  CFLAGS="$(CFLAGS)" \
 					  CPPFLAGS="$(CPPFLAGS)" \
 					  LDFLAGS="$(LDFLAGS)"
+
+
+# conditional build
+if ENABLE_EXAMPLES
+   noinst_PROGRAMS			+= examples/example-command
+   noinst_PROGRAMS			+= examples/example-event
+   noinst_PROGRAMS			+= examples/example-multiple
+   noinst_PROGRAMS			+= examples/example-stream
+endif
 
 
 # macros for examples/example-command

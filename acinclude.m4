@@ -31,6 +31,49 @@
 #   acinclude.m4 - custom m4 macros used by configure.ac
 #
 
+# AC_DAVICI_UTILS_EXAMPLES()
+# ______________________________________________________________________________
+AC_DEFUN([AC_DAVICI_UTILS_EXAMPLES],[dnl
+   enableval=""
+   AC_ARG_ENABLE(
+      examples,
+      [AS_HELP_STRING([--enable-examples], [build example programs])],
+      [ EEXAMPLES=$enableval ],
+      [ EEXAMPLES=$enableval ]
+   )
+
+   if test "x${EEXAMPLES}" == "xyes";then
+      ENABLE_EXAMPLES="yes"
+   else
+      ENABLE_EXAMPLES="no"
+   fi
+
+   AM_CONDITIONAL([ENABLE_EXAMPLES],  [test "$ENABLE_EXAMPLES" = "yes"])
+   AM_CONDITIONAL([DISABLE_EXAMPLES], [test "$ENABLE_EXAMPLES" = "no"])
+])dnl
+
+
+# AC_DAVICI_UTILS_DAVICICTL()
+# ______________________________________________________________________________
+AC_DEFUN([AC_DAVICI_UTILS_DAVICICTL],[dnl
+   enableval=""
+   AC_ARG_ENABLE(
+      examples,
+      [AS_HELP_STRING([--disable-davicictl], [do not install davicictl])],
+      [ EDAVICICTL=$enableval ],
+      [ EDAVICICTL=$enableval ]
+   )
+
+   if test "x${EDAVICICTL}" == "xno";then
+      ENABLE_DAVICICTL"no"
+   else
+      ENABLE_DAVICICTL="yes"
+   fi
+
+   AM_CONDITIONAL([ENABLE_DAVICICTL],  [test "$ENABLE_DAVICICTL" = "yes"])
+   AM_CONDITIONAL([DISABLE_DAVICICTL], [test "$ENABLE_DAVICICTL" = "no"])
+])dnl
+
 
 # end of m4 file
 
