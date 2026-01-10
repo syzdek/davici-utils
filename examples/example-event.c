@@ -220,7 +220,7 @@ main(
    dat.pollfd        = &pollfd;
    dat.queued        = &queued;
 
-   // initialize new command
+   // register new event
    my_verbose(&dat, "registering vici event \"log\" ...\n");
    rc = davici_register(conn, "log", my_davici_cb, &dat);
    if (rc < 0)
@@ -299,7 +299,7 @@ my_davici_cb(
 
    datp = (my_data_t *)user;
 
-   my_verbose(datp, "processing results of \"%s\" command ...\n", name);
+   my_verbose(datp, "processing results of \"%s\" event ...\n", name);
 
    if (err < 0)
    {  fprintf(stderr, "%s: %s: %s\n", PROGRAM_NAME, name, strerror(-err));
