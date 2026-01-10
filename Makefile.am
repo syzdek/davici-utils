@@ -77,8 +77,8 @@ noinst_LTLIBRARIES			=
 noinst_LIBRARIES			=
 noinst_HEADERS				=
 noinst_PROGRAMS				= examples/example-command \
-					  examples/example-event \
-					  examples/example-multiple
+					  examples/example-multiple \
+					  examples/example-stream
 bin_PROGRAMS				=
 bin_SCRIPTS				=
 pkgdata_DATA				=
@@ -130,20 +130,20 @@ examples_example_command_LDADD		= $(noinst_LIBRARIES) $(lib_LTLIBRARIES)
 examples_example_command_SOURCES	= examples/example-command.c
 
 
-# macros for examples/example-event
-examples_example_event_DEPENDENCIES	= Makefile config.h \
-					  $(noinst_LIBRARIES) $(lib_LTLIBRARIES)
-examples_example_event_CPPFLAGS		= -DPROGRAM_NAME="\"example-event\"" $(AM_CPPFLAGS)
-examples_example_event_LDADD		= $(noinst_LIBRARIES) $(lib_LTLIBRARIES)
-examples_example_event_SOURCES		= examples/example-event.c
-
-
 # macros for examples/example-multiple
 examples_example_multiple_DEPENDENCIES	= Makefile config.h \
 					  $(noinst_LIBRARIES) $(lib_LTLIBRARIES)
 examples_example_multiple_CPPFLAGS	= -DPROGRAM_NAME="\"example-multiple\"" $(AM_CPPFLAGS)
 examples_example_multiple_LDADD		= $(noinst_LIBRARIES) $(lib_LTLIBRARIES)
 examples_example_multiple_SOURCES	= examples/example-multiple.c
+
+
+# macros for examples/example-stream
+examples_example_stream_DEPENDENCIES	= Makefile config.h \
+					  $(noinst_LIBRARIES) $(lib_LTLIBRARIES)
+examples_example_stream_CPPFLAGS	= -DPROGRAM_NAME="\"example-stream\"" $(AM_CPPFLAGS)
+examples_example_stream_LDADD		= $(noinst_LIBRARIES) $(lib_LTLIBRARIES)
+examples_example_stream_SOURCES		= examples/example-stream.c
 
 
 # macros for src/davicimon
