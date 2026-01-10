@@ -347,7 +347,7 @@ my_parse_response(
    while((rc = davici_parse(res)) >= 0)
    {  switch(rc)
       {  case DAVICI_END:
-            printf("DAVICI_END: %s\n", key);
+            printf("DAVICI_END\n");
             return(0);
 
          case DAVICI_SECTION_START:
