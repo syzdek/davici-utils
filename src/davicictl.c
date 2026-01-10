@@ -172,7 +172,7 @@ my_davici_fdcb(
 #pragma mark parser prototypes
 
 static int
-my_parse_response(
+my_parse_res(
          const char *                  name,
          struct davici_response *      res,
          my_config_t *                 cnf );
@@ -1354,7 +1354,7 @@ my_davici_cb_command(
    if (!(res))
       return;
 
-   rc = my_parse_response(name, res, cnf);
+   rc = my_parse_res(name, res, cnf);
    if (rc < 0)
    {  fprintf(stderr, "%s: %s: %s\n", PROGRAM_NAME, name, strerror(-rc));
       return;
@@ -1390,7 +1390,7 @@ my_davici_cb_event(
    if (!(res))
       return;
 
-   rc = my_parse_response(name, res, cnf);
+   rc = my_parse_res(name, res, cnf);
    if (rc < 0)
    {  fprintf(stderr, "%s: %s: %s\n", PROGRAM_NAME, name, strerror(-rc));
       return;
@@ -1427,7 +1427,7 @@ my_davici_fdcb(
 #pragma mark parser functions
 
 int
-my_parse_response(
+my_parse_res(
          const char *                  name,
          struct davici_response *      res,
          my_config_t *                 cnf )
