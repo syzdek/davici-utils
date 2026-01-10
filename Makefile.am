@@ -104,11 +104,6 @@ EXTRA_DIST				= AUTHORS.md \
 CLEANFILES				= $(builddir)/a.out   $(srcdir)/a.out \
 					  $(builddir)/*/a.out $(srcdir)/*/a.out \
 					  config.h.in~ $(srcdir)/config.h.in~ \
-					  $(html_DATA) \
-					  $(man_MANS) \
-					  $(pkgdata_DATA) \
-					  $(bin_SCRIPTS) \
-					  $(sbin_SCRIPTS) \
 					  $(EXTRA_PROGRAMS) \
 					  @PACKAGE_TARNAME@-*.tar.* \
 					  @PACKAGE_TARNAME@-*.txz \
@@ -119,30 +114,21 @@ DISTCHECK_CONFIGURE_FLAGS		= --enable-strictwarnings \
 					  LDFLAGS="$(LDFLAGS)"
 
 
-# conditional build
-
-
 # macros for examples/example-command
-examples_example_command_DEPENDENCIES	= Makefile config.h \
-					  $(noinst_LIBRARIES) $(lib_LTLIBRARIES)
+examples_example_command_DEPENDENCIES	= Makefile config.h
 examples_example_command_CPPFLAGS	= -DPROGRAM_NAME="\"example-command\"" $(AM_CPPFLAGS)
-examples_example_command_LDADD		= $(noinst_LIBRARIES) $(lib_LTLIBRARIES)
 examples_example_command_SOURCES	= examples/example-command.c
 
 
 # macros for examples/example-multiple
-examples_example_multiple_DEPENDENCIES	= Makefile config.h \
-					  $(noinst_LIBRARIES) $(lib_LTLIBRARIES)
+examples_example_multiple_DEPENDENCIES	= Makefile config.h
 examples_example_multiple_CPPFLAGS	= -DPROGRAM_NAME="\"example-multiple\"" $(AM_CPPFLAGS)
-examples_example_multiple_LDADD		= $(noinst_LIBRARIES) $(lib_LTLIBRARIES)
 examples_example_multiple_SOURCES	= examples/example-multiple.c
 
 
 # macros for examples/example-stream
-examples_example_stream_DEPENDENCIES	= Makefile config.h \
-					  $(noinst_LIBRARIES) $(lib_LTLIBRARIES)
+examples_example_stream_DEPENDENCIES	= Makefile config.h
 examples_example_stream_CPPFLAGS	= -DPROGRAM_NAME="\"example-stream\"" $(AM_CPPFLAGS)
-examples_example_stream_LDADD		= $(noinst_LIBRARIES) $(lib_LTLIBRARIES)
 examples_example_stream_SOURCES		= examples/example-stream.c
 
 
@@ -171,7 +157,6 @@ install-data-hook:
 uninstall-local:
 
 clean-local:
-	rm -Rf $(PACKAGE_TARNAME)-*-win64-x86 $(PACKAGE_TARNAME)-*-win64-x86.zip
 
 distclean-local:
 	rm -fR $(srcdir)/autom4te.cache
