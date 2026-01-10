@@ -77,6 +77,7 @@ noinst_LTLIBRARIES			=
 noinst_LIBRARIES			=
 noinst_HEADERS				=
 noinst_PROGRAMS				= examples/example-command \
+					  examples/example-event \
 					  examples/example-multiple \
 					  examples/example-stream
 bin_PROGRAMS				=
@@ -118,6 +119,12 @@ DISTCHECK_CONFIGURE_FLAGS		= --enable-strictwarnings \
 examples_example_command_DEPENDENCIES	= Makefile config.h
 examples_example_command_CPPFLAGS	= -DPROGRAM_NAME="\"example-command\"" $(AM_CPPFLAGS)
 examples_example_command_SOURCES	= examples/example-command.c
+
+
+# macros for examples/example-event
+examples_example_event_DEPENDENCIES	= Makefile config.h
+examples_example_event_CPPFLAGS		= -DPROGRAM_NAME="\"example-event\"" $(AM_CPPFLAGS)
+examples_example_event_SOURCES		= examples/example-event.c
 
 
 # macros for examples/example-multiple
