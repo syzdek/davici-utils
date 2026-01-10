@@ -66,12 +66,7 @@ DEFS					=
 
 # automake targets
 check_PROGRAMS				=
-doc_DATA				= AUTHORS.md \
-					  ChangeLog.md \
-					  COPYING.md \
-					  NEWS.md \
-					  README.md \
-					  TODO.md
+doc_DATA				=
 html_DATA				=
 include_HEADERS				=
 lib_LTLIBRARIES				=
@@ -98,8 +93,12 @@ BUILT_SOURCES				=
 TESTS					=
 XFAIL_TESTS				=
 EXTRA_MANS				=
-EXTRA_DIST				= $(doc_DATA) \
-					  $(noinst_HEADERS)
+EXTRA_DIST				= AUTHORS.md \
+					  ChangeLog.md \
+					  COPYING.md \
+					  NEWS.md \
+					  README.md \
+					  TODO.md
 CLEANFILES				= $(builddir)/a.out   $(srcdir)/a.out \
 					  $(builddir)/*/a.out $(srcdir)/*/a.out \
 					  config.h.in~ $(srcdir)/config.h.in~ \
