@@ -720,6 +720,39 @@ my_lookup_widget(
 }
 
 
+int
+my_poll(
+         my_config_t *                 cnf )
+{
+   int rc;
+
+   // poll for responses
+   my_verbose(cnf, "entering polling loop ...\n");
+   while ( (!(my_should_exit)) && (cnf->pollfd.fd != -1) )
+   {  if ((rc = poll(&cnf->pollfd, 1, 30000)) < 0)
+      {  fprintf(stderr, "%s: poll(): %s\n", my_prog_name(cnf), strerror(errno));
+         return(1);
+      };
+      if ((cnf->pollfd.revents & POLLIN))
+      {  my_verbose(cnf, "reading data from vici socket ...\n");
+         if ((rc = davici_read(cnf->davici_conn)) < 0)
+         {  fprintf(stderr, "%s: davici_read(): %s\n", my_prog_name(cnf), strerror(-rc));
+            return(1);
+         };
+      };
+      if ((cnf->pollfd.revents & POLLOUT))
+      {  my_verbose(cnf, "writing data to vici socket ...\n");
+         if ((rc = davici_write(cnf->davici_conn)) < 0)
+         {  fprintf(stderr, "%s: davici_write(): %s\n", my_prog_name(cnf), strerror(-rc));
+            return(1);
+         };
+      };
+   };
+
+   return(0);
+}
+
+
 char *
 my_prog_name(
          my_config_t *                 cnf )
@@ -946,38 +979,6 @@ my_davici_fdcb(
    return(0);
 }
 
-
-int
-my_poll(
-         my_config_t *                 cnf )
-{
-   int rc;
-
-   // poll for responses
-   my_verbose(cnf, "entering polling loop ...\n");
-   while ( (!(my_should_exit)) && (cnf->pollfd.fd != -1) )
-   {  if ((rc = poll(&cnf->pollfd, 1, 30000)) < 0)
-      {  fprintf(stderr, "%s: poll(): %s\n", my_prog_name(cnf), strerror(errno));
-         return(1);
-      };
-      if ((cnf->pollfd.revents & POLLIN))
-      {  my_verbose(cnf, "reading data from vici socket ...\n");
-         if ((rc = davici_read(cnf->davici_conn)) < 0)
-         {  fprintf(stderr, "%s: davici_read(): %s\n", my_prog_name(cnf), strerror(-rc));
-            return(1);
-         };
-      };
-      if ((cnf->pollfd.revents & POLLOUT))
-      {  my_verbose(cnf, "writing data to vici socket ...\n");
-         if ((rc = davici_write(cnf->davici_conn)) < 0)
-         {  fprintf(stderr, "%s: davici_write(): %s\n", my_prog_name(cnf), strerror(-rc));
-            return(1);
-         };
-      };
-   };
-
-   return(0);
-}
 
 //-------------------//
 // parser functions //
