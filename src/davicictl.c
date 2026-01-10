@@ -64,14 +64,14 @@
 // MARK: - Definitions
 
 #undef   DAVUTL_SHORT_OPT
-#define  DAVUTL_SHORT_OPT "hqs:Vv"
+#define  DAVUTL_SHORT_OPT "hqu:Vv"
 
 #undef   DAVUTL_LONG_OPT
 #define  DAVUTL_LONG_OPT \
    { "help",            no_argument,         NULL, 'h' }, \
    { "quiet",           no_argument,         NULL, 'q' }, \
    { "silent",          no_argument,         NULL, 'q' }, \
-   { "socket",          required_argument,   NULL, 's' }, \
+   { "socket",          required_argument,   NULL, 'u' }, \
    { "version",         no_argument,         NULL, 'V' }, \
    { "verbose",         no_argument,         NULL, 'v' }, \
    { NULL, 0, NULL, 0 }
@@ -575,7 +575,7 @@ my_arguments(
             };
             break;
 
-         case 's':
+         case 'u':
             cnf->vici_sockpath = optarg;
             break;
 
@@ -826,7 +826,7 @@ my_usage(
    printf("OPTIONS:\n");
    if ((strchr(short_opt, 'h'))) printf("  -h, --help                print this help and exit\n");
    if ((strchr(short_opt, 'q'))) printf("  -q, --quiet, --silent     do not print messages\n");
-   if ((strchr(short_opt, 's'))) printf("  -s path, --socket=path    path to vici socket\n");
+   if ((strchr(short_opt, 'u'))) printf("  -u path, --socket=path    path to vici socket\n");
    if ((strchr(short_opt, 'V'))) printf("  -V, --version             print version number and exit\n");
    if ((strchr(short_opt, 'v'))) printf("  -v, --verbose             print verbose messages\n");
    if (!(cnf->widget))
