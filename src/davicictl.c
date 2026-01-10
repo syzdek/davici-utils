@@ -342,21 +342,6 @@ static my_widget_t my_widget_map[] =
       .func_usage    = NULL,
    },
 
-   // log widget
-   {  .name          = "log",
-      .aliases       = NULL,
-      .desc          = "displays debug log messages",
-      .davici_cmd    = NULL,
-      .davici_event  = "log",
-      .usage         = "[OPTIONS]",
-      .short_opt     = NULL,
-      .long_opt      = NULL,
-      .arg_min       = 0,
-      .arg_max       = 0,
-      .func_exec     = &my_widget_generic_event,
-      .func_usage    = NULL,
-   },
-
    // ike-rekey widget
    {  .name          = "ike-rekey",
       .aliases       = NULL,
@@ -414,6 +399,21 @@ static my_widget_t my_widget_map[] =
       .arg_min       = 0,
       .arg_max       = 0,
       .func_exec     = &my_widget_generic_command,
+      .func_usage    = NULL,
+   },
+
+   // log widget
+   {  .name          = "log",
+      .aliases       = NULL,
+      .desc          = "displays debug log messages",
+      .davici_cmd    = NULL,
+      .davici_event  = "log",
+      .usage         = "[OPTIONS]",
+      .short_opt     = NULL,
+      .long_opt      = NULL,
+      .arg_min       = 0,
+      .arg_max       = 0,
+      .func_exec     = &my_widget_generic_event,
       .func_usage    = NULL,
    },
 
