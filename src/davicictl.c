@@ -1140,7 +1140,7 @@ my_widget_generic_command(
 
    // queue command
    if (!(widget->davici_event))
-   {  my_verbose(cnf, "queueing vici command \"list-sas\" with event \"%s\" ...\n", widget->davici_cmd);
+   {  my_verbose(cnf, "queueing vici command \"%s\" ...\n", widget->davici_cmd);
       rc = davici_queue(cnf->davici_conn, cnf->davici_req, my_davici_cb_command, cnf);
    } else
    {  my_verbose(cnf, "queueing vici command \"%s\" with event \"%s\" ...\n", widget->davici_cmd, widget->davici_event);
