@@ -83,7 +83,7 @@ bin_PROGRAMS				=
 bin_SCRIPTS				=
 pkgdata_DATA				=
 sbin_SCRIPTS				=
-sbin_PROGRAMS				= src/davicimon
+sbin_PROGRAMS				=
 mod_LTLIBRARIES				=
 EXTRA_PROGRAMS				=
 EXTRA					=
@@ -144,14 +144,6 @@ examples_example_stream_DEPENDENCIES	= Makefile config.h \
 examples_example_stream_CPPFLAGS	= -DPROGRAM_NAME="\"example-stream\"" $(AM_CPPFLAGS)
 examples_example_stream_LDADD		= $(noinst_LIBRARIES) $(lib_LTLIBRARIES)
 examples_example_stream_SOURCES		= examples/example-stream.c
-
-
-# macros for src/davicimon
-src_davicimon_DEPENDENCIES		= Makefile config.h \
-					  $(noinst_LIBRARIES) $(lib_LTLIBRARIES)
-src_davicimon_CPPFLAGS			= -DPROGRAM_NAME="\"davicimon\"" $(AM_CPPFLAGS)
-src_davicimon_LDADD			= $(noinst_LIBRARIES) $(lib_LTLIBRARIES)
-src_davicimon_SOURCES			= src/davicimon.c
 
 
 # Makefile includes
