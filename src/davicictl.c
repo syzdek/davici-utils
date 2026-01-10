@@ -127,11 +127,6 @@ my_lookup_widget(
          int                           exact );
 
 
-static char *
-my_prog_name(
-         my_config_t *                 cnf );
-
-
 static void
 my_signal_handler(
          int                           sig );
@@ -140,13 +135,6 @@ my_signal_handler(
 static int
 my_usage(
          my_config_t *                 cnf );
-
-
-static void
-my_verbose(
-         my_config_t *                 cnf,
-         const char *                  fmt,
-         ... );
 
 
 static int
@@ -159,35 +147,12 @@ my_version(
 //-------------------//
 #pragma mark davici prototypes
 
-static void
-my_davici_cb_command(
-         struct davici_conn *          conn,
-         int                           err,
-         const char *                  name,
-         struct davici_response *      res,
-         void *                        user );
-
-
-static void
-my_davici_cb_event(
-         struct davici_conn *          conn,
-         int                           err,
-         const char *                  name,
-         struct davici_response *      res,
-         void *                        user );
-
-
 static int
 my_davici_fdcb(
          struct davici_conn *          conn,
          int                           fd,
          int                           ops,
          void *                        user );
-
-
-static int
-my_poll(
-         my_config_t *                 cnf );
 
 
 //-------------------//

@@ -155,5 +155,53 @@ struct _my_widget
 //////////////////
 // MARK: - Prototypes
 
+extern int
+my_poll(
+         my_config_t *                 cnf );
+
+
+extern char *
+my_prog_name(
+         my_config_t *                 cnf );
+
+
+extern void
+my_verbose(
+         my_config_t *                 cnf,
+         const char *                  fmt,
+         ... );
+
+
+//-------------------//
+// davici prototypes //
+//-------------------//
+#pragma mark davici prototypes
+
+extern void
+my_davici_cb_command(
+         struct davici_conn *          conn,
+         int                           err,
+         const char *                  name,
+         struct davici_response *      res,
+         void *                        user );
+
+
+extern void
+my_davici_cb_event(
+         struct davici_conn *          conn,
+         int                           err,
+         const char *                  name,
+         struct davici_response *      res,
+         void *                        user );
+
+
+//--------------------//
+// widgets prototypes //
+//--------------------//
+#pragma mark widgets prototypes
+
+extern int
+my_widget_list_sas(
+         my_config_t *                 cnf );
 
 #endif /* end of header */
