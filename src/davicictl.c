@@ -51,6 +51,7 @@
 #include <strings.h>
 #include <stdlib.h>
 #include <getopt.h>
+#include <signal.h>
 
 #include <davici.h>
 
@@ -131,6 +132,11 @@ my_prog_name(
          my_config_t *                 cnf );
 
 
+static void
+my_signal_handler(
+         int                           sig );
+
+
 static int
 my_usage(
          my_config_t *                 cnf );
@@ -206,6 +212,11 @@ my_widget_generic_command(
          my_config_t *                 cnf );
 
 
+static int
+my_widget_generic_event(
+         my_config_t *                 cnf );
+
+
 /////////////////
 //             //
 //  Variables  //
@@ -220,6 +231,51 @@ static int my_should_exit = 0;
 #pragma mark my_widget_map[]
 static my_widget_t my_widget_map[] =
 {
+   // alert widget
+   {  .name          = "alert",
+      .aliases       = NULL,
+      .desc          = "displays alert events",
+      .davici_cmd    = NULL,
+      .davici_event  = "alert",
+      .usage         = "[OPTIONS]",
+      .short_opt     = NULL,
+      .long_opt      = NULL,
+      .arg_min       = 0,
+      .arg_max       = 0,
+      .func_exec     = &my_widget_generic_event,
+      .func_usage    = NULL,
+   },
+
+   // child-updown widget
+   {  .name          = "child-updown",
+      .aliases       = NULL,
+      .desc          = "displays child-updown events",
+      .davici_cmd    = NULL,
+      .davici_event  = "child-updown",
+      .usage         = "[OPTIONS]",
+      .short_opt     = NULL,
+      .long_opt      = NULL,
+      .arg_min       = 0,
+      .arg_max       = 0,
+      .func_exec     = &my_widget_generic_event,
+      .func_usage    = NULL,
+   },
+
+   // child-rekey widget
+   {  .name          = "child-rekey",
+      .aliases       = NULL,
+      .desc          = "displays child-rekey events",
+      .davici_cmd    = NULL,
+      .davici_event  = "child-rekey",
+      .usage         = "[OPTIONS]",
+      .short_opt     = NULL,
+      .long_opt      = NULL,
+      .arg_min       = 0,
+      .arg_max       = 0,
+      .func_exec     = &my_widget_generic_event,
+      .func_usage    = NULL,
+   },
+
    // clear-creds widget
    {  .name          = "clear-creds",
       .aliases       = NULL,
@@ -307,6 +363,66 @@ static my_widget_t my_widget_map[] =
       .arg_min       = 0,
       .arg_max       = 0,
       .func_exec     = &my_widget_generic_command,
+      .func_usage    = NULL,
+   },
+
+   // log widget
+   {  .name          = "log",
+      .aliases       = NULL,
+      .desc          = "displays debug log messages",
+      .davici_cmd    = NULL,
+      .davici_event  = "log",
+      .usage         = "[OPTIONS]",
+      .short_opt     = NULL,
+      .long_opt      = NULL,
+      .arg_min       = 0,
+      .arg_max       = 0,
+      .func_exec     = &my_widget_generic_event,
+      .func_usage    = NULL,
+   },
+
+   // ike-rekey widget
+   {  .name          = "ike-rekey",
+      .aliases       = NULL,
+      .desc          = "displays ike-rekey events",
+      .davici_cmd    = NULL,
+      .davici_event  = "ike-rekey",
+      .usage         = "[OPTIONS]",
+      .short_opt     = NULL,
+      .long_opt      = NULL,
+      .arg_min       = 0,
+      .arg_max       = 0,
+      .func_exec     = &my_widget_generic_event,
+      .func_usage    = NULL,
+   },
+
+   // ike-update widget
+   {  .name          = "ike-update",
+      .aliases       = NULL,
+      .desc          = "displays ike-update events",
+      .davici_cmd    = NULL,
+      .davici_event  = "ike-update",
+      .usage         = "[OPTIONS]",
+      .short_opt     = NULL,
+      .long_opt      = NULL,
+      .arg_min       = 0,
+      .arg_max       = 0,
+      .func_exec     = &my_widget_generic_event,
+      .func_usage    = NULL,
+   },
+
+   // ike-updown widget
+   {  .name          = "ike-updown",
+      .aliases       = NULL,
+      .desc          = "displays ike-updown events",
+      .davici_cmd    = NULL,
+      .davici_event  = "ike-updown",
+      .usage         = "[OPTIONS]",
+      .short_opt     = NULL,
+      .long_opt      = NULL,
+      .arg_min       = 0,
+      .arg_max       = 0,
+      .func_exec     = &my_widget_generic_event,
       .func_usage    = NULL,
    },
 
@@ -428,6 +544,14 @@ main(
    {  my_free(cnf);
       return((rc == -1) ? 0 : 1);
    };
+
+   // set signal handlers
+   signal(SIGHUP,    my_signal_handler);
+   signal(SIGINT,    my_signal_handler);
+   signal(SIGTERM,   my_signal_handler);
+   signal(SIGUSR1,   SIG_IGN);
+   signal(SIGUSR2,   SIG_IGN);
+   signal(SIGPIPE,   SIG_IGN);
 
    // connect to vici socket
    my_verbose(cnf, "connecting to vici socket ...\n");
@@ -651,6 +775,22 @@ my_prog_name(
    snprintf(buff, sizeof(buff), "%s %s", prog_name, cnf->widget->name);
 
    return(buff);
+}
+
+
+void
+my_signal_handler(
+         int                           sig )
+{
+   my_should_exit = 1;
+   switch(sig)
+   {  case SIGHUP:   printf("%s: caught SIGHUP signal\n",  PROGRAM_NAME); break;
+      case SIGINT:   printf("%s: caught SIGINT signal\n",  PROGRAM_NAME); break;
+      case SIGTERM:  printf("%s: caught SIGTERM signal\n", PROGRAM_NAME); break;
+      default:       printf("%s: caught unknown signal\n", PROGRAM_NAME); break;
+   };
+   signal(sig, my_signal_handler);
+   return;
 }
 
 
@@ -984,6 +1124,32 @@ my_widget_generic_command(
       return(1);
    };
    cnf->queued++;
+
+   if ((my_poll(cnf)))
+      return(1);
+
+   return(0);
+}
+
+
+int
+my_widget_generic_event(
+         my_config_t *                 cnf )
+{
+   int               rc;
+   const my_widget_t *     widget;
+
+   if (!(cnf))
+      return(1);
+   widget   = cnf->widget;
+
+   // register new event
+   my_verbose(cnf, "registering vici event \"%s\" ...\n", widget->davici_event);
+   rc = davici_register(cnf->davici_conn, widget->davici_event, my_davici_cb_event, cnf);
+   if (rc < 0)
+   {  fprintf(stderr, "%s: %s\n",  my_prog_name(cnf), strerror(-rc));
+      return(1);
+   };
 
    if ((my_poll(cnf)))
       return(1);
