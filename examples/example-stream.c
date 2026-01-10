@@ -80,7 +80,7 @@
 // MARK: - Definitions
 
 #undef PROGRAM_NAME
-#define PROGRAM_NAME "example-event"
+#define PROGRAM_NAME "example-stream"
 
 
 //////////////
