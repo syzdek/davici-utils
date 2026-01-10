@@ -86,7 +86,8 @@ mod_LTLIBRARIES				=
 EXTRA_PROGRAMS				= examples/example-command \
 					  examples/example-event \
 					  examples/example-multiple \
-					  examples/example-stream
+					  examples/example-stream \
+					  src/davicictl
 EXTRA					=
 
 
@@ -117,6 +118,9 @@ DISTCHECK_CONFIGURE_FLAGS		= --enable-strictwarnings \
 
 
 # conditional build
+if ENABLE_DAVICICTL
+   sbin_PROGRAMS			+= src/davicictl
+endif
 if ENABLE_EXAMPLES
    noinst_PROGRAMS			+= examples/example-command
    noinst_PROGRAMS			+= examples/example-event
@@ -147,6 +151,13 @@ examples_example_multiple_SOURCES	= examples/example-multiple.c
 examples_example_stream_DEPENDENCIES	= Makefile config.h
 examples_example_stream_CPPFLAGS	= -DPROGRAM_NAME="\"example-stream\"" $(AM_CPPFLAGS)
 examples_example_stream_SOURCES		= examples/example-stream.c
+
+
+# macros for src/davicictl
+src_davicictl_DEPENDENCIES		= Makefile config.h
+src_davicictl_CPPFLAGS			= -DPROGRAM_NAME="\"davicictl\"" $(AM_CPPFLAGS)
+src_davicictl_SOURCES			= src/davici-utils.h \
+					  src/davicictl.c
 
 
 # Makefile includes
