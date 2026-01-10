@@ -884,7 +884,7 @@ my_usage(
    {  printf("WIDGETS:\n");
       for(pos = 0; my_widget_map[pos].name != NULL; pos++)
       {  widget = &my_widget_map[pos];
-         if ((widget->desc))
+         if ( ((widget->desc)) && ((widget->func_exec)) )
             printf("  %-25s %s\n", widget->name, widget->desc);
       };
       printf("\n");
