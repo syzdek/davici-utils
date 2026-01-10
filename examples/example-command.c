@@ -30,7 +30,15 @@
  *  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  *  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#define __EXAMPLE_COMMAND_C 1
+/*
+ *  This program is an example of using the davici library to submit a command
+ *  which does not use events to return data.
+ *
+ *  To compile this program, run the following:
+ *
+ *        gcc -W -O2 -o example-command example-command.c -ldavici
+ */
+#define __EXAMPLES_EXAMPLE_COMMAND_C 1
 
 
 ///////////////

@@ -30,7 +30,15 @@
  *  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  *  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#define __EXAMPLE_STREAMED_C 1
+/*
+ *  This program is an example of using the davici library to submit a command
+ *  which does uses event streams to return data.
+ *
+ *  To compile this program, run the following:
+ *
+ *        gcc -W -O2 -o example-stream example-stream.c -ldavici
+ */
+#define __EXAMPLES_EXAMPLE_STREAM_C 1
 
 
 ///////////////
