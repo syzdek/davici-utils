@@ -190,6 +190,13 @@ my_strlcat(
          size_t                        dstsize );
 
 
+size_t
+my_strlcpy(
+         char * restrict               dst,
+         const char * restrict         src,
+         size_t                        dstsize );
+
+
 //-------------------//
 // davici prototypes //
 //-------------------//
