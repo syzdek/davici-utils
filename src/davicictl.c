@@ -1563,7 +1563,7 @@ my_parse_res_debug(
       return(0);
 
    my_strlcpy(title, "VICI ", sizeof(title));
-   my_strlcat(title, (((is_event)) ? "Event" : "Command"), sizeof(title));
+   my_strlcat(title, (((is_event)) ? "Event" : "Reply"), sizeof(title));
    my_parse_res_debug_print(0, title, name, NULL);
 
    level = davici_get_level(res);
@@ -1658,7 +1658,7 @@ my_parse_res_vici(
 
    level = davici_get_level(res) + 1;
 
-   printf("%s %s {", name, (((is_event)) ? "event" : "command"));
+   printf("%s %s {", name, (((is_event)) ? "event" : "reply"));
    while((rc = davici_parse(res)) >= 0)
    {  switch(rc)
       {  case DAVICI_END:
