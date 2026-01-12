@@ -178,6 +178,18 @@ my_verbose(
          ... );
 
 
+//--------------------------//
+// compatibility prototypes //
+//--------------------------//
+#pragma mark compatibility prototypes
+
+size_t
+my_strlcat(
+         char * restrict               dst,
+         const char * restrict         src,
+         size_t                        dstsize );
+
+
 //-------------------//
 // davici prototypes //
 //-------------------//
