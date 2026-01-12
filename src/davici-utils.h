@@ -91,9 +91,9 @@
 #endif
 
 #undef MY_SOCK_PATH
-#define MY_SOCK_PATH "/var/run/charon.vici"
+#define MY_SOCK_PATH          "/var/run/charon.vici"
 
-#define MY_FLG_NOBLOCK     0x00000001
+#define MY_FLG_NOBLOCK        0x00000001
 
 
 //////////////////
