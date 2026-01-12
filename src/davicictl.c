@@ -64,14 +64,16 @@
 // MARK: - Definitions
 
 #undef   DAVUTL_SHORT_OPT
-#define  DAVUTL_SHORT_OPT "hqu:Vv"
+#define  DAVUTL_SHORT_OPT        "hO:Pqu:Vv"
 
 #undef   DAVUTL_SHORT_IKE
-#define  DAVUTL_SHORT_IKE "C:c:I:i:n"
+#define  DAVUTL_SHORT_IKE        "C:c:I:i:n"
 
 #undef   DAVUTL_LONG_OPT
 #define  DAVUTL_LONG_OPT \
    { "help",            no_argument,         NULL, 'h' }, \
+   { "out-format",      required_argument,   NULL, 'O' }, \
+   { "pretty",          required_argument,   NULL, 'P' }, \
    { "quiet",           no_argument,         NULL, 'q' }, \
    { "silent",          no_argument,         NULL, 'q' }, \
    { "socket",          required_argument,   NULL, 'u' }, \
@@ -175,7 +177,38 @@ static int
 my_parse_res(
          const char *                  name,
          struct davici_response *      res,
-         my_config_t *                 cnf );
+         my_config_t *                 cnf,
+         int                           is_event );
+
+
+static int
+my_parse_res_debug(
+         const char *                  name,
+         struct davici_response *      res,
+         my_config_t *                 cnf,
+         int                           is_event );
+
+
+int
+my_parse_res_debug_print(
+         unsigned                      level,
+         const char *                  name,
+         const char *                  key,
+         const char *                  val );
+
+
+static int
+my_parse_res_vici(
+         const char *                  name,
+         struct davici_response *      res,
+         my_config_t *                 cnf,
+         int                           is_event );
+
+
+int
+my_parse_res_vici_delim(
+         my_config_t *                 cnf,
+         int                           level );
 
 
 //--------------------//
@@ -1002,6 +1035,23 @@ my_arguments(
             cnf->flags |= MY_FLG_NOBLOCK;
             break;
 
+         case 'O':
+            if      (!(strcasecmp(optarg, "debug"))) cnf->format_out = MY_FMT_DEBUG;
+            else if (!(strcasecmp(optarg, "json")))  cnf->format_out = MY_FMT_JSON;
+            else if (!(strcasecmp(optarg, "xml")))   cnf->format_out = MY_FMT_XML;
+            else if (!(strcasecmp(optarg, "vici")))  cnf->format_out = MY_FMT_VICI;
+            else if (!(strcasecmp(optarg, "yaml")))  cnf->format_out = MY_FMT_YAML;
+            else
+            {  fprintf(stderr, "%s: unsupported output format `%s'\n", my_prog_name(cnf), optarg);
+               fprintf(stderr, "Try `%s --help' for more information.\n",  my_prog_name(cnf));
+               return(1);
+            };
+            break;
+
+         case 'P':
+            cnf->flags |= MY_FLG_PRETTY;
+            break;
+
          case 'q':
             cnf->quiet = 1;
             if ((cnf->verbose))
@@ -1266,6 +1316,8 @@ my_usage(
    if ((strchr(short_opt, 'I'))) printf("  -I id, --ike-id=id        filter IKE_SAs by unique identifier\n");
    if ((strchr(short_opt, 'i'))) printf("  -i name, --ike=name       filter IKE_SAs by name\n");
    if ((strchr(short_opt, 'n'))) printf("  -n, --noblock             don't wait for IKE_SAs in use\n");
+   if ((strchr(short_opt, 'O'))) printf("  -O fmt, --out-format=fmt  output format (json, vici, xml, or yaml)\n");
+   if ((strchr(short_opt, 'P'))) printf("  -P, --pretty              beautify response messages\n");
    if ((strchr(short_opt, 'q'))) printf("  -q, --quiet, --silent     do not print messages\n");
    if ((strchr(short_opt, 'u'))) printf("  -u path, --socket=path    path to vici socket\n");
    if ((strchr(short_opt, 'V'))) printf("  -V, --version             print version number and exit\n");
@@ -1406,7 +1458,7 @@ my_davici_cb_command(
    if (!(res))
       return;
 
-   rc = my_parse_res(name, res, cnf);
+   rc = my_parse_res(name, res, cnf, 0);
    if (rc < 0)
    {  fprintf(stderr, "%s: %s: %s\n", PROGRAM_NAME, name, strerror(-rc));
       return;
@@ -1442,7 +1494,7 @@ my_davici_cb_event(
    if (!(res))
       return;
 
-   rc = my_parse_res(name, res, cnf);
+   rc = my_parse_res(name, res, cnf, 1);
    if (rc < 0)
    {  fprintf(stderr, "%s: %s: %s\n", PROGRAM_NAME, name, strerror(-rc));
       return;
@@ -1482,16 +1534,40 @@ int
 my_parse_res(
          const char *                  name,
          struct davici_response *      res,
-         my_config_t *                 cnf )
+         my_config_t *                 cnf,
+         int                           is_event )
+{
+   switch(cnf->format_out)
+   {  case MY_FMT_VICI:    return(my_parse_res_vici(name, res, cnf, is_event));
+      case MY_FMT_DEBUG:   return(my_parse_res_debug(name, res, cnf, is_event));
+      default:             break;
+   };
+   return(my_parse_res_debug(name, res, cnf, is_event));
+}
+
+
+int
+my_parse_res_debug(
+         const char *                  name,
+         struct davici_response *      res,
+         my_config_t *                 cnf,
+         int                           is_event )
 {
    int               rc;
-   char              str[4096];
+   char              val[4096];
    const char *      key;
+   unsigned          level;
+   char              title[64];
 
    if (!(cnf))
       return(0);
 
-   printf("command %s\n", name);
+   my_strlcpy(title, "VICI ", sizeof(title));
+   my_strlcat(title, (((is_event)) ? "Event" : "Command"), sizeof(title));
+   my_parse_res_debug_print(0, title, name, NULL);
+
+   level = davici_get_level(res);
+
    while((rc = davici_parse(res)) >= 0)
    {  switch(rc)
       {  case DAVICI_END:
@@ -1499,50 +1575,174 @@ my_parse_res(
 
          case DAVICI_SECTION_START:
             key = davici_get_name(res);
-            printf("DAVICI_SECTION_START: %s\n", key);
+            my_parse_res_debug_print(level, "DAVICI_SECTION_START", key, NULL);
             break;
 
          case DAVICI_SECTION_END:
-            printf("DAVICI_SECTION_END\n");
+            my_parse_res_debug_print(level, "DAVICI_SECTION_END", NULL, NULL);
             break;
 
          case DAVICI_KEY_VALUE:
-            rc = davici_get_value_str(res, str, sizeof(str));
+            rc = davici_get_value_str(res, val, sizeof(val));
             if (rc < 0)
             {  fprintf(stderr, "%s: davici_get_value_str(): %s\n", PROGRAM_NAME, strerror(-rc));
                return(0);
             };
             key = davici_get_name(res);
-            printf("DAVICI_KEY_VALUE: %s = \"%s\"\n", key, str);
+            my_parse_res_debug_print(level, "DAVICI_KEY_VALUE", key, val);
             break;
 
          case DAVICI_LIST_START:
             key = davici_get_name(res);
-            printf("DAVICI_LIST_START: %s\n", key);
+            my_parse_res_debug_print(level, "DAVICI_LIST_START", key, NULL);
             break;
 
          case DAVICI_LIST_ITEM:
-            rc = davici_get_value_str(res, str, sizeof(str));
+            rc = davici_get_value_str(res, val, sizeof(val));
             if (rc < 0)
             {  fprintf(stderr, "%s: davici_get_value_str(): %s\n", PROGRAM_NAME, strerror(-rc));
                return(0);
             };
-            printf("DAVICI_LIST_ITEM: %s\n", str);
+            my_parse_res_debug_print(level, "DAVICI_LIST_ITEM", val, NULL);
             break;
 
          case DAVICI_LIST_END:
-            printf("DAVICI_LIST_END\n");
+            my_parse_res_debug_print(level, "DAVICI_LIST_END", NULL, NULL);
             break;
 
          default:
-            printf("UNKNOWN\n");
+            my_parse_res_debug_print(level, "UNKNOWN", NULL, NULL);
             break;
       };
+      level = davici_get_level(res);
    };
 
    return(rc);
 }
 
+
+int
+my_parse_res_debug_print(
+         unsigned                      level,
+         const char *                  name,
+         const char *                  key,
+         const char *                  val )
+{
+   char buff[64];
+
+   my_strlcpy(buff, name,  sizeof(buff));
+   my_strlcat(buff, ":",   sizeof(buff));
+
+   if (!(key))
+      return(printf("%-24s\n", buff));
+   if (!(val))
+      return(printf("%-24s%*s%s\n", buff, (level*3), "", key));
+   return(printf("%-24s%*s%s = \"%s\"\n", buff, (level*3), "", key, val));
+}
+
+
+int
+my_parse_res_vici(
+         const char *                  name,
+         struct davici_response *      res,
+         my_config_t *                 cnf,
+         int                           is_event )
+{
+   int               rc;
+   char              val[4096];
+   const char *      key;
+   unsigned          level;
+
+   if (!(cnf))
+      return(0);
+
+   level = davici_get_level(res) + 1;
+
+   printf("%s %s {", name, (((is_event)) ? "event" : "command"));
+   while((rc = davici_parse(res)) >= 0)
+   {  switch(rc)
+      {  case DAVICI_END:
+            cnf->last_was_item = 0;
+            my_parse_res_vici_delim(cnf, level-1);
+            printf("}\n");
+            return(0);
+
+         case DAVICI_SECTION_START:
+            key = davici_get_name(res);
+            my_parse_res_vici_delim(cnf, level);
+            printf("%s {", key);
+            cnf->last_was_item = 0;
+            break;
+
+         case DAVICI_SECTION_END:
+            cnf->last_was_item = 0;
+            my_parse_res_vici_delim(cnf, level-1);
+            printf("}");
+            cnf->last_was_item = 1;
+            break;
+
+         case DAVICI_KEY_VALUE:
+            rc = davici_get_value_str(res, val, sizeof(val));
+            if (rc < 0)
+            {  fprintf(stderr, "%s: davici_get_value_str(): %s\n", PROGRAM_NAME, strerror(-rc));
+               return(0);
+            };
+            key = davici_get_name(res);
+            my_parse_res_vici_delim(cnf, level);
+            if ((cnf->flags & MY_FLG_PRETTY))
+               printf("%s = %s", key, val);
+            else
+               printf("%s=%s", key, val);
+            cnf->last_was_item = 1;
+            break;
+
+         case DAVICI_LIST_START:
+            key = davici_get_name(res);
+            my_parse_res_vici_delim(cnf, level);
+            printf("%s = [", key);
+            cnf->last_was_item = 0;
+            break;
+
+         case DAVICI_LIST_ITEM:
+            rc = davici_get_value_str(res, val, sizeof(val));
+            if (rc < 0)
+            {  fprintf(stderr, "%s: davici_get_value_str(): %s\n", PROGRAM_NAME, strerror(-rc));
+               return(0);
+            };
+            my_parse_res_vici_delim(cnf, level);
+            printf("%s", val);
+            cnf->last_was_item = 0;
+            break;
+
+         case DAVICI_LIST_END:
+            my_parse_res_vici_delim(cnf, level-1);
+            printf("]");
+            cnf->last_was_item = 1;
+            break;
+
+         default:
+            printf("UNKNOWN\n");
+            cnf->last_was_item = 0;
+            break;
+      };
+      level = davici_get_level(res) + 1;
+   };
+
+   return(rc);
+}
+
+
+int
+my_parse_res_vici_delim(
+         my_config_t *                 cnf,
+         int                           level )
+{
+   if ((cnf->flags & MY_FLG_PRETTY))
+      printf(((cnf->last_was_item)) ? ",\n%*s" : "\n%*s", (level*3), "");
+   else
+      printf(((cnf->last_was_item)) ? " " : "");
+   return(0);
+}
 
 //-------------------//
 // widgets functions //

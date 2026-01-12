@@ -94,6 +94,14 @@
 #define MY_SOCK_PATH          "/var/run/charon.vici"
 
 #define MY_FLG_NOBLOCK        0x00000001
+#define MY_FLG_PRETTY         0x00000002
+
+#define MY_FMT_DEFAULT        0x00000000
+#define MY_FMT_DEBUG          0x00000001
+#define MY_FMT_VICI           0x00000002
+#define MY_FMT_JSON           0x00000003
+#define MY_FMT_YAML           0x00000004
+#define MY_FMT_XML            0x00000005
 
 
 //////////////////
@@ -114,6 +122,8 @@ struct _my_config
    int                           queued;
    int                           argc;
    int                           flags;
+   int                           format_out;
+   int                           last_was_item;
    struct pollfd                 pollfd;
    char * const *                argv;
    const char *                  prog_name;
