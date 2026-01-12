@@ -73,7 +73,7 @@
 #define  DAVUTL_LONG_OPT \
    { "help",            no_argument,         NULL, 'h' }, \
    { "out-format",      required_argument,   NULL, 'O' }, \
-   { "pretty",          required_argument,   NULL, 'P' }, \
+   { "pretty",          no_argument,         NULL, 'P' }, \
    { "quiet",           no_argument,         NULL, 'q' }, \
    { "silent",          no_argument,         NULL, 'q' }, \
    { "socket",          required_argument,   NULL, 'u' }, \
