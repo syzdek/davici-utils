@@ -128,6 +128,7 @@ struct _my_config
    char * const *                argv;
    const char *                  prog_name;
    const char *                  vici_sockpath;
+   const char *                  res_last_name;
    const char *                  ike_sa;
    const char *                  ike_sa_id;
    const char *                  child_sa;

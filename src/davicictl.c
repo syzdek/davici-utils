@@ -219,8 +219,22 @@ my_parse_res_vici(
          int                           is_event );
 
 
-int
+static int
 my_parse_res_vici_delim(
+         my_config_t *                 cnf,
+         int                           level );
+
+
+static int
+my_parse_res_yaml(
+         const char *                  name,
+         struct davici_response *      res,
+         my_config_t *                 cnf,
+         int                           is_event );
+
+
+static int
+my_parse_res_yaml_delim(
          my_config_t *                 cnf,
          int                           level );
 
@@ -995,6 +1009,10 @@ main(
          printf("[");
          break;
 
+      case MY_FMT_YAML:
+         printf("---\n");
+         break;
+
       default:
          break;
    };
@@ -1575,6 +1593,7 @@ my_parse_res(
    {  case MY_FMT_DEBUG:   return(my_parse_res_debug(name, res, cnf, is_event));
       case MY_FMT_JSON:    return(my_parse_res_json(name, res, cnf, is_event));
       case MY_FMT_VICI:    return(my_parse_res_vici(name, res, cnf, is_event));
+      case MY_FMT_YAML:    return(my_parse_res_yaml(name, res, cnf, is_event));
       default:             break;
    };
    return(my_parse_res_debug(name, res, cnf, is_event));
@@ -1884,6 +1903,105 @@ my_parse_res_vici_delim(
       printf(((cnf->last_was_item)) ? " " : "");
    return(0);
 }
+
+int
+my_parse_res_yaml(
+         const char *                  name,
+         struct davici_response *      res,
+         my_config_t *                 cnf,
+         int                           is_event )
+{
+   int               rc;
+   char              val[4096];
+   const char *      key;
+   unsigned          level;
+
+   if (!(cnf))
+      return(0);
+
+   if ( (!(cnf->res_last_name)) || ((strcasecmp(name, cnf->res_last_name))) )
+   {  my_parse_res_yaml_delim(cnf, 0);
+      printf("%s-%s:\n", name, (((is_event)) ? "event" : "reply"));
+   };
+
+   cnf->res_last_name = name;
+
+   level = davici_get_level(res) + 1;
+
+   while((rc = davici_parse(res)) >= 0)
+   {  switch(rc)
+      {  case DAVICI_END:
+            cnf->last_was_item = 1;
+            return(0);
+
+         case DAVICI_SECTION_START:
+            key = davici_get_name(res);
+            my_parse_res_yaml_delim(cnf, level);
+            printf("%s:\n", key);
+            cnf->last_was_item = 0;
+            break;
+
+         case DAVICI_SECTION_END:
+            cnf->last_was_item = 1;
+            break;
+
+         case DAVICI_KEY_VALUE:
+            rc = davici_get_value_str(res, val, sizeof(val));
+            if (rc < 0)
+            {  fprintf(stderr, "%s: davici_get_value_str(): %s\n", PROGRAM_NAME, strerror(-rc));
+               return(0);
+            };
+            key = davici_get_name(res);
+            my_parse_res_yaml_delim(cnf, level);
+            printf("%s: %s\n", key, val);
+            cnf->last_was_item = 1;
+            break;
+
+         case DAVICI_LIST_START:
+            key = davici_get_name(res);
+            my_parse_res_yaml_delim(cnf, level);
+            printf("%s:\n", key);
+            cnf->last_was_item = 0;
+            break;
+
+         case DAVICI_LIST_ITEM:
+            rc = davici_get_value_str(res, val, sizeof(val));
+            if (rc < 0)
+            {  fprintf(stderr, "%s: davici_get_value_str(): %s\n", PROGRAM_NAME, strerror(-rc));
+               return(0);
+            };
+            my_parse_res_yaml_delim(cnf, level);
+            printf("- %s\n", val);
+            cnf->last_was_item = 0;
+            break;
+
+         case DAVICI_LIST_END:
+            cnf->last_was_item = 1;
+            break;
+
+         default:
+            printf("UNKNOWN\n");
+            cnf->last_was_item = 0;
+            break;
+      };
+      level = davici_get_level(res) + 1;
+   };
+
+   return(rc);
+}
+
+
+int
+my_parse_res_yaml_delim(
+         my_config_t *                 cnf,
+         int                           level )
+{
+   if (!(cnf))
+      return(0);
+   printf(((cnf->last_was_item)) ? "%*s" : "%*s", (level*3), "");
+   return(0);
+}
+
 
 //-------------------//
 // widgets functions //
