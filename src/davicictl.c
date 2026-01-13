@@ -2025,7 +2025,11 @@ my_parse_res_yaml(
 
    if ( (!(cnf->res_last_name)) || ((strcasecmp(name, cnf->res_last_name))) )
    {  my_parse_res_yaml_delim(cnf, 0);
-      printf("%s-%s:\n", name, (((is_event)) ? "event" : "reply"));
+      printf(  "%s%s-%s:\n",
+               (((cnf->widget->flags & MY_FLG_STREAM)) ? "- " : ""),
+               name,
+               (((is_event)) ? "event" : "reply")
+            );
    };
 
    cnf->res_last_name = name;
