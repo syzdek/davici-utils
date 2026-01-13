@@ -264,6 +264,8 @@ my_widget_generic_event(
 #pragma mark my_should_exit
 static int my_should_exit = 0;
 
+#pragma mark my_debug
+static int my_debug = 0;
 
 #pragma mark my_widget_map[]
 static my_widget_t my_widget_map[] =
@@ -1020,13 +1022,15 @@ main(
    rc = cnf->widget->func_exec(cnf);
 
    // print footer for specified output format
-   switch(cnf->format_out)
-   {  case MY_FMT_JSON:
-         printf(((cnf->flags & MY_FLG_PRETTY)) ? "\n   }\n}\n" : "}}\n");
-         break;
+   if (!(rc))
+   {  switch(cnf->format_out)
+      {  case MY_FMT_JSON:
+            printf(((cnf->flags & MY_FLG_PRETTY)) ? "\n   }\n}\n" : "}}\n");
+            break;
 
-      default:
-         break;
+         default:
+            break;
+      };
    };
 
    my_free(cnf);
@@ -1268,8 +1272,15 @@ my_poll(
    my_verbose(cnf, "entering polling loop ...\n");
    while ( (!(my_should_exit)) && (cnf->pollfd.fd != -1) )
    {  if ((rc = poll(&cnf->pollfd, 1, 30000)) < 0)
-      {  fprintf(stderr, "%s: poll(): %s\n", my_prog_name(cnf), strerror(errno));
-         return(1);
+      {  switch(errno)
+         {  case EINTR: break;
+
+            default:
+               fprintf(stderr, "%s: poll(): %s\n", my_prog_name(cnf), strerror(errno));
+               return(1);
+               break;
+         };
+         continue;
       };
       if ((cnf->pollfd.revents & POLLIN))
       {  my_verbose(cnf, "reading data from vici socket ...\n");
@@ -1287,7 +1298,7 @@ my_poll(
       };
    };
 
-   return(0);
+   return((my_should_exit < 0) ? 1 : 0);
 }
 
 
@@ -1319,11 +1330,13 @@ my_signal_handler(
          int                           sig )
 {
    my_should_exit = 1;
-   switch(sig)
-   {  case SIGHUP:   printf("%s: caught SIGHUP signal\n",  PROGRAM_NAME); break;
-      case SIGINT:   printf("%s: caught SIGINT signal\n",  PROGRAM_NAME); break;
-      case SIGTERM:  printf("%s: caught SIGTERM signal\n", PROGRAM_NAME); break;
-      default:       printf("%s: caught unknown signal\n", PROGRAM_NAME); break;
+   if ((my_debug))
+   {  switch(sig)
+      {  case SIGHUP:   printf("%s: caught SIGHUP signal\n",  PROGRAM_NAME); break;
+         case SIGINT:   printf("%s: caught SIGINT signal\n",  PROGRAM_NAME); break;
+         case SIGTERM:  printf("%s: caught SIGTERM signal\n", PROGRAM_NAME); break;
+         default:       printf("%s: caught unknown signal\n", PROGRAM_NAME); break;
+      };
    };
    signal(sig, my_signal_handler);
    return;
@@ -1504,6 +1517,7 @@ my_davici_cb_command(
 
    if (err < 0)
    {  fprintf(stderr, "%s: %s: %s\n", PROGRAM_NAME, name, strerror(-err));
+      my_should_exit = err;
       return;
    };
 
@@ -1513,6 +1527,7 @@ my_davici_cb_command(
    rc = my_parse_res(name, res, cnf, 0);
    if (rc < 0)
    {  fprintf(stderr, "%s: %s: %s\n", PROGRAM_NAME, name, strerror(-rc));
+      my_should_exit = rc;
       return;
    };
 
@@ -1540,6 +1555,7 @@ my_davici_cb_event(
 
    if (err < 0)
    {  fprintf(stderr, "%s: %s: %s\n", PROGRAM_NAME, name, strerror(-err));
+      my_should_exit = err;
       return;
    };
 
@@ -1549,6 +1565,7 @@ my_davici_cb_event(
    rc = my_parse_res(name, res, cnf, 1);
    if (rc < 0)
    {  fprintf(stderr, "%s: %s: %s\n", PROGRAM_NAME, name, strerror(-rc));
+      my_should_exit = rc;
       return;
    };
 
