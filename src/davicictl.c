@@ -1719,6 +1719,7 @@ my_parse_res(
       case MY_FMT_YAML:    return(my_parse_res_yaml(name, res, cnf, is_event));
       default:             break;
    };
+   cnf->flags |= MY_FLG_PRETTY;
    return(my_parse_res_vici(name, res, cnf, is_event));
 }
 
