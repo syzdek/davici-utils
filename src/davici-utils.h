@@ -95,6 +95,7 @@
 
 #define MY_FLG_NOBLOCK        0x00000001
 #define MY_FLG_PRETTY         0x00000002
+#define MY_FLG_STREAM         0x00000004
 
 #define MY_FMT_DEFAULT        0x00000000
 #define MY_FMT_DEBUG          0x00000001
@@ -151,7 +152,7 @@ struct _my_widget
    int                        arg_min;
    int                        arg_max;
    int                        alias_idx;
-   int                        padint;
+   int                        flags;
    int  (*func_exec)(my_config_t * cnf);
    int  (*func_usage)(my_config_t * cnf);
 };

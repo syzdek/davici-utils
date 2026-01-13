@@ -276,6 +276,7 @@ static my_widget_t my_widget_map[] =
       .desc          = "displays alert events",
       .davici_cmd    = NULL,
       .davici_event  = "alert",
+      .flags         = 0,
       .usage         = "[OPTIONS]",
       .short_opt     = NULL,
       .long_opt      = NULL,
@@ -291,6 +292,7 @@ static my_widget_t my_widget_map[] =
       .desc          = "displays child-updown events",
       .davici_cmd    = NULL,
       .davici_event  = "child-updown",
+      .flags         = MY_FLG_STREAM,
       .usage         = "[OPTIONS]",
       .short_opt     = NULL,
       .long_opt      = NULL,
@@ -306,6 +308,7 @@ static my_widget_t my_widget_map[] =
       .desc          = "displays child-rekey events",
       .davici_cmd    = NULL,
       .davici_event  = "child-rekey",
+      .flags         = MY_FLG_STREAM,
       .usage         = "[OPTIONS]",
       .short_opt     = NULL,
       .long_opt      = NULL,
@@ -321,6 +324,7 @@ static my_widget_t my_widget_map[] =
       .desc          = "clears loaded certs, private keys and shared keys",
       .davici_cmd    = "clear-creds",
       .davici_event  = NULL,
+      .flags         = 0,
       .usage         = "[OPTIONS]",
       .short_opt     = NULL,
       .long_opt      = NULL,
@@ -336,6 +340,7 @@ static my_widget_t my_widget_map[] =
       .desc          = "flushes the certificate cache",
       .davici_cmd    = "flush-certs",
       .davici_event  = NULL,
+      .flags         = 0,
       .usage         = "[OPTIONS]",
       .short_opt     = NULL,
       .long_opt      = NULL,
@@ -351,6 +356,7 @@ static my_widget_t my_widget_map[] =
       .desc          = "lists loaded algorithms and their implementation",
       .davici_cmd    = "get-algorithms",
       .davici_event  = NULL,
+      .flags         = 0,
       .usage         = "[OPTIONS]",
       .short_opt     = NULL,
       .long_opt      = NULL,
@@ -366,6 +372,7 @@ static my_widget_t my_widget_map[] =
       .desc          = "lists loaded CA names",
       .davici_cmd    = "get-authorities",
       .davici_event  = NULL,
+      .flags         = 0,
       .usage         = "[OPTIONS]",
       .short_opt     = NULL,
       .long_opt      = NULL,
@@ -381,6 +388,7 @@ static my_widget_t my_widget_map[] =
       .desc          = "lists connections loaded over vici",
       .davici_cmd    = "get-conns",
       .davici_event  = NULL,
+      .flags         = 0,
       .usage         = "[OPTIONS]",
       .short_opt     = NULL,
       .long_opt      = NULL,
@@ -396,6 +404,7 @@ static my_widget_t my_widget_map[] =
       .desc          = "Lists global or connection-specific counters",
       .davici_cmd    = "get-counters",
       .davici_event  = NULL,
+      .flags         = 0,
       .usage         = "[OPTIONS]",
       .short_opt     = NULL,
       .long_opt      = NULL,
@@ -411,6 +420,7 @@ static my_widget_t my_widget_map[] =
       .desc          = "lists private keys identifiers loaded over vici",
       .davici_cmd    = "get-keys",
       .davici_event  = NULL,
+      .flags         = 0,
       .usage         = "[OPTIONS]",
       .short_opt     = NULL,
       .long_opt      = NULL,
@@ -426,6 +436,7 @@ static my_widget_t my_widget_map[] =
       .desc          = "Lists loaded pools.",
       .davici_cmd    = "get-pools",
       .davici_event  = NULL,
+      .flags         = 0,
       .usage         = "[OPTIONS]",
       .short_opt     = NULL,
       .long_opt      = NULL,
@@ -441,6 +452,7 @@ static my_widget_t my_widget_map[] =
       .desc          = "lists unique shared key identifiers loaded over vici",
       .davici_cmd    = "get-shared",
       .davici_event  = NULL,
+      .flags         = 0,
       .usage         = "[OPTIONS]",
       .short_opt     = NULL,
       .long_opt      = NULL,
@@ -456,6 +468,7 @@ static my_widget_t my_widget_map[] =
       .desc          = "displays ike-rekey events",
       .davici_cmd    = NULL,
       .davici_event  = "ike-rekey",
+      .flags         = 0,
       .usage         = "[OPTIONS]",
       .short_opt     = NULL,
       .long_opt      = NULL,
@@ -471,6 +484,7 @@ static my_widget_t my_widget_map[] =
       .desc          = "displays ike-update events",
       .davici_cmd    = NULL,
       .davici_event  = "ike-update",
+      .flags         = MY_FLG_STREAM,
       .usage         = "[OPTIONS]",
       .short_opt     = NULL,
       .long_opt      = NULL,
@@ -486,6 +500,7 @@ static my_widget_t my_widget_map[] =
       .desc          = "displays ike-updown events",
       .davici_cmd    = NULL,
       .davici_event  = "ike-updown",
+      .flags         = 0,
       .usage         = "[OPTIONS]",
       .short_opt     = NULL,
       .long_opt      = NULL,
@@ -501,6 +516,7 @@ static my_widget_t my_widget_map[] =
       .desc          = "initiates an SA",
       .davici_cmd    = "initiate",
       .davici_event  = "control-log",
+      .flags         = 0,
       .usage         = "[OPTIONS]",
       .short_opt     = NULL,
       .long_opt      = NULL,
@@ -516,6 +532,7 @@ static my_widget_t my_widget_map[] =
       .desc          = "installs a CHILD_SA's 'trap, drop or bypass policy",
       .davici_cmd    = "install",
       .davici_event  = NULL,
+      .flags         = 0,
       .usage         = "[OPTIONS]",
       .short_opt     = NULL,
       .long_opt      = NULL,
@@ -531,6 +548,7 @@ static my_widget_t my_widget_map[] =
       .desc          = "Lists loaded certification authorities",
       .davici_cmd    = "list-authorities",
       .davici_event  = "list-authority",
+      .flags         = 0,
       .usage         = "[OPTIONS]",
       .short_opt     = NULL,
       .long_opt      = NULL,
@@ -546,6 +564,7 @@ static my_widget_t my_widget_map[] =
       .desc          = "Lists loaded certificates",
       .davici_cmd    = "list-certs",
       .davici_event  = "list-cert",
+      .flags         = 0,
       .usage         = "[OPTIONS]",
       .short_opt     = NULL,
       .long_opt      = NULL,
@@ -561,6 +580,7 @@ static my_widget_t my_widget_map[] =
       .desc          = "lists all loaded connections",
       .davici_cmd    = "list-conns",
       .davici_event  = "list-conn",
+      .flags         = 0,
       .usage         = "[OPTIONS]",
       .short_opt     = NULL,
       .long_opt      = NULL,
@@ -576,6 +596,7 @@ static my_widget_t my_widget_map[] =
       .desc          = "lists installed trap, drop and bypass policies",
       .davici_cmd    = "list-policies",
       .davici_event  = "list-policy",
+      .flags         = 0,
       .usage         = "[OPTIONS]",
       .short_opt     = NULL,
       .long_opt      = NULL,
@@ -591,6 +612,7 @@ static my_widget_t my_widget_map[] =
       .desc          = "lists active IKE_SAs and associated CHILD_SAs",
       .davici_cmd    = "list-sas",
       .davici_event  = "list-sa",
+      .flags         = 0,
       .usage         = "[OPTIONS]",
       .short_opt     = DAVUTL_SHORT_OPT DAVUTL_SHORT_IKE,
       .long_opt      = DAVUTL_LONG( DAVUTL_LONG_IKE ),
@@ -606,6 +628,7 @@ static my_widget_t my_widget_map[] =
       .desc          = "loads a certification authority into the daemon",
       .davici_cmd    = "load-authority",
       .davici_event  = NULL,
+      .flags         = 0,
       .usage         = "[OPTIONS]",
       .short_opt     = NULL,
       .long_opt      = NULL,
@@ -621,6 +644,7 @@ static my_widget_t my_widget_map[] =
       .desc          = "loads a certificate into the daemon",
       .davici_cmd    = "load-cert",
       .davici_event  = NULL,
+      .flags         = 0,
       .usage         = "[OPTIONS]",
       .short_opt     = NULL,
       .long_opt      = NULL,
@@ -636,6 +660,7 @@ static my_widget_t my_widget_map[] =
       .desc          = "loads a connection definition into the daemon",
       .davici_cmd    = "load-conn",
       .davici_event  = NULL,
+      .flags         = 0,
       .usage         = "[OPTIONS]",
       .short_opt     = NULL,
       .long_opt      = NULL,
@@ -651,6 +676,7 @@ static my_widget_t my_widget_map[] =
       .desc          = "loads a private key into the daemon",
       .davici_cmd    = "load-key",
       .davici_event  = NULL,
+      .flags         = 0,
       .usage         = "[OPTIONS]",
       .short_opt     = NULL,
       .long_opt      = NULL,
@@ -666,6 +692,7 @@ static my_widget_t my_widget_map[] =
       .desc          = "loads a virtual IP and attribute pool.",
       .davici_cmd    = "load-pool",
       .davici_event  = NULL,
+      .flags         = 0,
       .usage         = "[OPTIONS]",
       .short_opt     = NULL,
       .long_opt      = NULL,
@@ -681,6 +708,7 @@ static my_widget_t my_widget_map[] =
       .desc          = "loads a shared IKE PSK, EAP, XAuth or NTLM secret into the daemon",
       .davici_cmd    = "load-shared",
       .davici_event  = NULL,
+      .flags         = 0,
       .usage         = "[OPTIONS]",
       .short_opt     = NULL,
       .long_opt      = NULL,
@@ -696,6 +724,7 @@ static my_widget_t my_widget_map[] =
       .desc          = "loads a private key on a token into the daemon",
       .davici_cmd    = "load-token",
       .davici_event  = NULL,
+      .flags         = 0,
       .usage         = "[OPTIONS]",
       .short_opt     = NULL,
       .long_opt      = NULL,
@@ -711,6 +740,7 @@ static my_widget_t my_widget_map[] =
       .desc          = "displays debug log messages",
       .davici_cmd    = NULL,
       .davici_event  = "log",
+      .flags         = MY_FLG_STREAM,
       .usage         = "[OPTIONS]",
       .short_opt     = NULL,
       .long_opt      = NULL,
@@ -726,6 +756,7 @@ static my_widget_t my_widget_map[] =
       .desc          = "redirects client-initiated IKE_SA to another gateway",
       .davici_cmd    = "redirect",
       .davici_event  = NULL,
+      .flags         = 0,
       .usage         = "[OPTIONS]",
       .short_opt     = NULL,
       .long_opt      = NULL,
@@ -741,6 +772,7 @@ static my_widget_t my_widget_map[] =
       .desc          = "initiates rekeying of an SA",
       .davici_cmd    = "rekey",
       .davici_event  = "ike-rekey",
+      .flags         = 0,
       .usage         = "[OPTIONS]",
       .short_opt     = NULL,
       .long_opt      = NULL,
@@ -756,6 +788,7 @@ static my_widget_t my_widget_map[] =
       .desc          = "reloads strongswan.conf settings and plugins",
       .davici_cmd    = "reload-settings",
       .davici_event  = NULL,
+      .flags         = 0,
       .usage         = "[OPTIONS]",
       .short_opt     = NULL,
       .long_opt      = NULL,
@@ -771,6 +804,7 @@ static my_widget_t my_widget_map[] =
       .desc          = "resets global or connection-specific counters",
       .davici_cmd    = "reset-counters",
       .davici_event  = NULL,
+      .flags         = 0,
       .usage         = "[OPTIONS]",
       .short_opt     = NULL,
       .long_opt      = NULL,
@@ -786,6 +820,7 @@ static my_widget_t my_widget_map[] =
       .desc          = "returns IKE daemon statistics",
       .davici_cmd    = "stats",
       .davici_event  = NULL,
+      .flags         = 0,
       .usage         = "[OPTIONS]",
       .short_opt     = NULL,
       .long_opt      = NULL,
@@ -801,6 +836,7 @@ static my_widget_t my_widget_map[] =
       .desc          = "terminates an SA",
       .davici_cmd    = "terminate",
       .davici_event  = "control-log",
+      .flags         = 0,
       .usage         = "[OPTIONS]",
       .short_opt     = NULL,
       .long_opt      = NULL,
@@ -816,6 +852,7 @@ static my_widget_t my_widget_map[] =
       .desc          = "uninstalls a CHILD_SA's 'trap, drop or bypass policy",
       .davici_cmd    = "uninstall",
       .davici_event  = NULL,
+      .flags         = 0,
       .usage         = "[OPTIONS]",
       .short_opt     = NULL,
       .long_opt      = NULL,
@@ -831,6 +868,7 @@ static my_widget_t my_widget_map[] =
       .desc          = "unloads a certification authority into the daemon",
       .davici_cmd    = "unload-authority",
       .davici_event  = NULL,
+      .flags         = 0,
       .usage         = "[OPTIONS]",
       .short_opt     = NULL,
       .long_opt      = NULL,
@@ -846,6 +884,7 @@ static my_widget_t my_widget_map[] =
       .desc          = "unloads a connection definition from the daemon",
       .davici_cmd    = "unload-conn",
       .davici_event  = NULL,
+      .flags         = 0,
       .usage         = "[OPTIONS]",
       .short_opt     = NULL,
       .long_opt      = NULL,
@@ -861,6 +900,7 @@ static my_widget_t my_widget_map[] =
       .desc          = "unloads a private key from the daemon",
       .davici_cmd    = "unload-key",
       .davici_event  = NULL,
+      .flags         = 0,
       .usage         = "[OPTIONS]",
       .short_opt     = NULL,
       .long_opt      = NULL,
@@ -876,6 +916,7 @@ static my_widget_t my_widget_map[] =
       .desc          = "unloads a virtual IP and attribute pool.",
       .davici_cmd    = "unload-pool",
       .davici_event  = NULL,
+      .flags         = 0,
       .usage         = "[OPTIONS]",
       .short_opt     = NULL,
       .long_opt      = NULL,
@@ -891,6 +932,7 @@ static my_widget_t my_widget_map[] =
       .desc          = "unloads a shared IKE PSK, EAP, XAuth or NTLM secret into the daemon",
       .davici_cmd    = "unload-shared",
       .davici_event  = NULL,
+      .flags         = 0,
       .usage         = "[OPTIONS]",
       .short_opt     = NULL,
       .long_opt      = NULL,
@@ -906,6 +948,7 @@ static my_widget_t my_widget_map[] =
       .desc          = "returns daemon and system versions",
       .davici_cmd    = "version",
       .davici_event  = NULL,
+      .flags         = 0,
       .usage         = "[OPTIONS]",
       .short_opt     = NULL,
       .long_opt      = NULL,
@@ -920,6 +963,7 @@ static my_widget_t my_widget_map[] =
       .desc          = NULL,
       .davici_cmd    = NULL,
       .davici_event  = NULL,
+      .flags         = 0,
       .usage         = NULL,
       .short_opt     = NULL,
       .long_opt      = NULL,
@@ -1008,7 +1052,7 @@ main(
    // print header for specified output format
    switch(cnf->format_out)
    {  case MY_FMT_JSON:
-         printf("{");
+         printf(((cnf->widget->flags & MY_FLG_STREAM)) ? "[" : "{");
          break;
 
       case MY_FMT_YAML:
@@ -1025,7 +1069,10 @@ main(
    if (!(rc))
    {  switch(cnf->format_out)
       {  case MY_FMT_JSON:
-            printf(((cnf->flags & MY_FLG_PRETTY)) ? "\n   }\n}\n" : "}}\n");
+            if ((cnf->widget->flags & MY_FLG_STREAM))
+               printf(((cnf->flags & MY_FLG_PRETTY)) ? "\n]\n" : "]\n");
+            else
+               printf(((cnf->flags & MY_FLG_PRETTY)) ? "\n   }\n}\n" : "}}\n");
             break;
 
          default:
@@ -1727,15 +1774,21 @@ my_parse_res_json(
    if (!(cnf))
       return(0);
 
-   if ( (!(cnf->res_last_name)) || ((strcasecmp(name, cnf->res_last_name))) )
+   if ((cnf->widget->flags & MY_FLG_STREAM))
    {  my_parse_res_json_delim(cnf, 0);
-      if ((cnf->res_last_name))
-      {  printf("}");
-         cnf->last_was_item = 1;
-         my_parse_res_json_delim(cnf, 0);
-      };
       printf("\"%s-%s\": {", name, (((is_event)) ? "event" : "reply"));
       cnf->last_was_item = 0;
+   } else
+   {  if ( (!(cnf->res_last_name)) || ((strcasecmp(name, cnf->res_last_name))) )
+      {  my_parse_res_json_delim(cnf, 0);
+         if ((cnf->res_last_name))
+         {  printf("}");
+            cnf->last_was_item = 1;
+            my_parse_res_json_delim(cnf, 0);
+         };
+         printf("\"%s-%s\": {", name, (((is_event)) ? "event" : "reply"));
+         cnf->last_was_item = 0;
+      };
    };
 
    cnf->res_last_name = name;
@@ -1745,6 +1798,11 @@ my_parse_res_json(
    while((rc = davici_parse(res)) >= 0)
    {  switch(rc)
       {  case DAVICI_END:
+            if ((cnf->widget->flags & MY_FLG_STREAM))
+            {  cnf->last_was_item = 0;
+               my_parse_res_json_delim(cnf, 0);
+               printf("}");
+            };
             cnf->last_was_item = 1;
             return(0);
 
