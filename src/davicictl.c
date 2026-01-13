@@ -184,6 +184,11 @@ my_parse_footer_json(
 
 
 static int
+my_parse_footer_xml(
+         my_config_t *                 cnf );
+
+
+static int
 my_parse_res(
          const char *                  name,
          struct davici_response *      res,
@@ -233,6 +238,33 @@ static int
 my_parse_res_vici_delim(
          my_config_t *                 cnf,
          int                           level );
+
+
+static int
+my_parse_res_xml(
+         const char *                  name,
+         struct davici_response *      res,
+         my_config_t *                 cnf,
+         int                           is_event );
+
+
+static int
+my_parse_res_xml_delim(
+         my_config_t *                 cnf,
+         int                           level );
+
+
+static void
+my_parse_res_xml_sect_free(
+         char **                       sections );
+
+
+static int
+my_parse_res_xml_sect_set(
+         my_config_t *                 cnf,
+         char **                       sects,
+         int                           level,
+         const char *                  sect );
 
 
 static int
@@ -1640,6 +1672,7 @@ my_parse_footer(
 
    switch(cnf->format_out)
    {  case MY_FMT_JSON:    return(my_parse_footer_json(cnf));
+      case MY_FMT_XML:     return(my_parse_footer_xml(cnf));
       default:             break;
    };
 
@@ -1661,6 +1694,17 @@ my_parse_footer_json(
 
 
 int
+my_parse_footer_xml(
+         my_config_t *                 cnf )
+{
+   if (!(cnf))
+      return(0);
+   printf(((cnf->flags & MY_FLG_PRETTY)) ? "\n</vici>\n" : "</vici>\n");
+   return(0);
+}
+
+
+int
 my_parse_res(
          const char *                  name,
          struct davici_response *      res,
@@ -1671,6 +1715,7 @@ my_parse_res(
    {  case MY_FMT_DEBUG:   return(my_parse_res_debug(name, res, cnf, is_event));
       case MY_FMT_JSON:    return(my_parse_res_json(name, res, cnf, is_event));
       case MY_FMT_VICI:    return(my_parse_res_vici(name, res, cnf, is_event));
+      case MY_FMT_XML:     return(my_parse_res_xml(name, res, cnf, is_event));
       case MY_FMT_YAML:    return(my_parse_res_yaml(name, res, cnf, is_event));
       default:             break;
    };
@@ -2004,6 +2049,163 @@ my_parse_res_vici_delim(
       printf(((cnf->last_was_item)) ? " " : "");
    return(0);
 }
+
+
+int
+my_parse_res_xml(
+         const char *                  name,
+         struct davici_response *      res,
+         my_config_t *                 cnf,
+         int                           is_event )
+{
+   int               rc;
+   char              val[4096];
+   const char *      key;
+   unsigned          level;
+   char *            sects[128];
+
+   if (!(cnf))
+      return(0);
+
+   memset(sects, 0, sizeof(sects));
+
+   // print JSON header
+   if (!(cnf->res_last_name))
+   {  printf("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+      printf("<vici>");
+   };
+
+   // print event/command section start
+   my_parse_res_xml_delim(cnf, 0);
+   printf("<%s-%s>", name, (((is_event)) ? "event" : "reply"));
+
+   cnf->res_last_name = name;
+
+   level = davici_get_level(res) + 1;
+
+   while((rc = davici_parse(res)) >= 0)
+   {  switch(rc)
+      {  case DAVICI_END:
+            my_parse_res_xml_delim(cnf, level-1);
+            printf("</%s-%s>", name, (((is_event)) ? "event" : "reply"));
+            my_parse_res_xml_sect_free(sects);
+            return(0);
+
+         case DAVICI_SECTION_START:
+            key = davici_get_name(res);
+            if ((rc = my_parse_res_xml_sect_set(cnf, sects, level, key)) != 0)
+            {  my_parse_res_xml_sect_free(sects);
+               return(rc);
+            };
+            my_parse_res_xml_delim(cnf, level);
+            printf("<%s>", sects[level]);
+            break;
+
+         case DAVICI_SECTION_END:
+            key = davici_get_name(res);
+            my_parse_res_xml_delim(cnf, level-1);
+            printf("</%s>", sects[level-1]);
+            break;
+
+         case DAVICI_KEY_VALUE:
+            rc = davici_get_value_str(res, val, sizeof(val));
+            if (rc < 0)
+            {  fprintf(stderr, "%s: davici_get_value_str(): %s\n", PROGRAM_NAME, strerror(-rc));
+               my_parse_res_xml_sect_free(sects);
+               return(rc);
+            };
+            key = davici_get_name(res);
+            my_parse_res_xml_delim(cnf, level);
+            printf("<%s>%s</%s>", key, val, key);
+            break;
+
+         case DAVICI_LIST_START:
+            key = davici_get_name(res);
+            if ((rc = my_parse_res_xml_sect_set(cnf, sects, level, key)) != 0)
+            {  my_parse_res_xml_sect_free(sects);
+               return(rc);
+            };
+            my_parse_res_xml_delim(cnf, level);
+            printf("<%s>", sects[level]);
+            break;
+
+         case DAVICI_LIST_ITEM:
+            rc = davici_get_value_str(res, val, sizeof(val));
+            if (rc < 0)
+            {  fprintf(stderr, "%s: davici_get_value_str(): %s\n", PROGRAM_NAME, strerror(-rc));
+               my_parse_res_xml_sect_free(sects);
+               return(rc);
+            };
+            my_parse_res_xml_delim(cnf, level);
+            printf("<item>%s<item>", val);
+            break;
+
+         case DAVICI_LIST_END:
+            key = davici_get_name(res);
+            my_parse_res_xml_delim(cnf, level-1);
+            printf("</%s>", sects[level-1]);
+            break;
+
+         default:
+            printf("UNKNOWN\n");
+            cnf->last_was_item = 0;
+            break;
+      };
+      level = davici_get_level(res) + 1;
+   };
+
+   my_parse_res_xml_sect_free(sects);
+
+   return(rc);
+}
+
+
+int
+my_parse_res_xml_delim(
+         my_config_t *                 cnf,
+         int                           level )
+{
+   level++;
+   if ((cnf->flags & MY_FLG_PRETTY))
+      printf("\n%*s", (level*3), "");
+   return(0);
+}
+
+
+void
+my_parse_res_xml_sect_free(
+         char **                       sections )
+{
+   int i;
+   for(i = 0; (i < 128); i++)
+   {  if ((sections[i]))
+         free(sections[i]);
+      sections[i] = NULL;
+   };
+   return;
+}
+
+
+int
+my_parse_res_xml_sect_set(
+         my_config_t *                 cnf,
+         char **                       sects,
+         int                           level,
+         const char *                  sect )
+{
+   assert(level < 128);
+
+   if ((sects[level]))
+      sects[level] = NULL;
+
+   if ((sects[level] = strdup(sect)) == NULL)
+   {  fprintf(stderr, "%s: strdup(): %s\n", my_prog_name(cnf), strerror(errno));
+      return(-errno);
+   };
+
+   return(0);
+}
+
 
 int
 my_parse_res_yaml(
