@@ -174,6 +174,16 @@ my_davici_fdcb(
 #pragma mark parser prototypes
 
 static int
+my_parse_footer(
+         my_config_t *                 cnf );
+
+
+static int
+my_parse_footer_json(
+         my_config_t *                 cnf );
+
+
+static int
 my_parse_res(
          const char *                  name,
          struct davici_response *      res,
@@ -1049,36 +1059,11 @@ main(
       return(1);
    };
 
-   // print header for specified output format
-   switch(cnf->format_out)
-   {  case MY_FMT_JSON:
-         printf(((cnf->widget->flags & MY_FLG_STREAM)) ? "[" : "{");
-         break;
-
-      case MY_FMT_YAML:
-         printf("---\n");
-         break;
-
-      default:
-         break;
-   };
-
    rc = cnf->widget->func_exec(cnf);
 
    // print footer for specified output format
    if (!(rc))
-   {  switch(cnf->format_out)
-      {  case MY_FMT_JSON:
-            if ((cnf->widget->flags & MY_FLG_STREAM))
-               printf(((cnf->flags & MY_FLG_PRETTY)) ? "\n]\n" : "]\n");
-            else
-               printf(((cnf->flags & MY_FLG_PRETTY)) ? "\n   }\n}\n" : "}}\n");
-            break;
-
-         default:
-            break;
-      };
-   };
+      my_parse_footer(cnf);
 
    my_free(cnf);
 
@@ -1647,6 +1632,35 @@ my_davici_fdcb(
 #pragma mark parser functions
 
 int
+my_parse_footer(
+         my_config_t *                 cnf )
+{
+   if (!(cnf->res_last_name))
+      return(0);
+
+   switch(cnf->format_out)
+   {  case MY_FMT_JSON:    return(my_parse_footer_json(cnf));
+      default:             break;
+   };
+
+   return(0);
+}
+
+
+int
+my_parse_footer_json(
+         my_config_t *                 cnf )
+{
+   if ((cnf->widget->flags & MY_FLG_STREAM))
+   {  printf(((cnf->flags & MY_FLG_PRETTY)) ? "\n]\n" : "]\n");
+      return(0);
+   };
+   printf(((cnf->flags & MY_FLG_PRETTY)) ? "\n   }\n}\n" : "}}\n");
+   return(0);
+}
+
+
+int
 my_parse_res(
          const char *                  name,
          struct davici_response *      res,
@@ -1774,6 +1788,11 @@ my_parse_res_json(
    if (!(cnf))
       return(0);
 
+   // print JSON header
+   if (!(cnf->res_last_name))
+      printf(((cnf->widget->flags & MY_FLG_STREAM)) ? "[" : "{");
+
+   // print event/command section start
    if ((cnf->widget->flags & MY_FLG_STREAM))
    {  my_parse_res_json_delim(cnf, 0);
       printf("\"%s-%s\": {", name, (((is_event)) ? "event" : "reply"));
@@ -2000,6 +2019,9 @@ my_parse_res_yaml(
 
    if (!(cnf))
       return(0);
+
+   if (!(cnf->res_last_name))
+      printf("---\n");
 
    if ( (!(cnf->res_last_name)) || ((strcasecmp(name, cnf->res_last_name))) )
    {  my_parse_res_yaml_delim(cnf, 0);
