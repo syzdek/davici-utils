@@ -1765,7 +1765,7 @@ my_parse_res_json(
             };
             my_parse_res_json_delim(cnf, level);
             printf("\"%s\"", val);
-            cnf->last_was_item = 0;
+            cnf->last_was_item = 1;
             break;
 
          case DAVICI_LIST_END:
