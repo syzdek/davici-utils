@@ -1006,7 +1006,7 @@ main(
    // print header for specified output format
    switch(cnf->format_out)
    {  case MY_FMT_JSON:
-         printf("[");
+         printf("{");
          break;
 
       case MY_FMT_YAML:
@@ -1022,7 +1022,7 @@ main(
    // print footer for specified output format
    switch(cnf->format_out)
    {  case MY_FMT_JSON:
-         printf(((cnf->flags & MY_FLG_PRETTY)) ? "\n]\n" : "]\n");
+         printf(((cnf->flags & MY_FLG_PRETTY)) ? "\n   }\n}\n" : "}}\n");
          break;
 
       default:
@@ -1710,17 +1710,24 @@ my_parse_res_json(
    if (!(cnf))
       return(0);
 
-   my_parse_res_json_delim(cnf, 0);
-   printf("\"%s-%s\": {", name, (((is_event)) ? "event" : "reply"));
+   if ( (!(cnf->res_last_name)) || ((strcasecmp(name, cnf->res_last_name))) )
+   {  my_parse_res_json_delim(cnf, 0);
+      if ((cnf->res_last_name))
+      {  printf("}");
+         cnf->last_was_item = 1;
+         my_parse_res_json_delim(cnf, 0);
+      };
+      printf("\"%s-%s\": {", name, (((is_event)) ? "event" : "reply"));
+      cnf->last_was_item = 0;
+   };
+
+   cnf->res_last_name = name;
 
    level = davici_get_level(res) + 1;
 
    while((rc = davici_parse(res)) >= 0)
    {  switch(rc)
       {  case DAVICI_END:
-            cnf->last_was_item = 0;
-            my_parse_res_json_delim(cnf, level-1);
-            printf("}");
             cnf->last_was_item = 1;
             return(0);
 
