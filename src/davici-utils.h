@@ -232,6 +232,24 @@ my_davici_cb_event(
          void *                        user );
 
 
+//-------------------//
+// parser prototypes //
+//-------------------//
+#pragma mark parser prototypes
+
+extern int
+my_parse_footer(
+         my_config_t *                 cnf );
+
+
+extern int
+my_parse_res(
+         const char *                  name,
+         struct davici_response *      res,
+         my_config_t *                 cnf,
+         int                           is_event );
+
+
 //--------------------//
 // widgets prototypes //
 //--------------------//

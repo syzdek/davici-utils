@@ -157,7 +157,8 @@ examples_example_stream_SOURCES		= examples/example-stream.c
 src_davicictl_DEPENDENCIES		= Makefile config.h
 src_davicictl_CPPFLAGS			= -DPROGRAM_NAME="\"davicictl\"" $(AM_CPPFLAGS)
 src_davicictl_SOURCES			= src/davici-utils.h \
-					  src/davicictl.c
+					  src/davicictl.c \
+					  src/davicictl-parser.c
 
 
 # Makefile includes
