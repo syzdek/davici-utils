@@ -97,6 +97,7 @@
 #define MY_FLG_PRETTY         0x00000002
 #define MY_FLG_STREAM         0x00000004
 #define MY_FLG_ALL_IKE        0x00000008
+#define MY_FLG_LEASES         0x00000010
 
 #define MY_FMT_DEFAULT        0x00000000
 #define MY_FMT_DEBUG          0x00000001
@@ -137,6 +138,7 @@ struct _my_config
    const char *                  ike_sa_id;
    const char *                  child_sa;
    const char *                  child_sa_id;
+   const char *                  opt_name;
    const my_widget_t *           widget;
    struct davici_conn *          davici_conn;
    struct davici_request *       davici_req;

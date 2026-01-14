@@ -71,7 +71,9 @@
 #define  MY_SOPT_EVENT        "E:"
 #define  MY_SOPT_IKE          "i:"
 #define  MY_SOPT_IKE_ID       "I:"
-#define  MY_SOPT_NOBLOCK      "n"
+#define  MY_SOPT_LEASES       "l"
+#define  MY_SOPT_NAME         "n:"
+#define  MY_SOPT_NOBLOCK      "N"
 
 #define  MY_LOPT              { "help",            no_argument,         NULL, 'h' }, \
                               { "out-format",      required_argument,   NULL, 'O' }, \
@@ -89,7 +91,9 @@
 #define  MY_LOPT_EVENT        { "event",           required_argument,   NULL, 'E' },
 #define  MY_LOPT_IKE          { "ike",             required_argument,   NULL, 'i' },
 #define  MY_LOPT_IKE_ID       { "ike-id",          required_argument,   NULL, 'I' },
-#define  MY_LOPT_NOBLOCK      { "noblock",         no_argument,         NULL, 'n' },
+#define  MY_LOPT_LEASES       { "leases",          no_argument,         NULL, 'l' },
+#define  MY_LOPT_NAME         { "name",            required_argument,   NULL, 'n' },
+#define  MY_LOPT_NOBLOCK      { "noblock",         no_argument,         NULL, 'N' },
 
 
 //////////////
@@ -361,19 +365,19 @@ static my_widget_t my_widget_map[] =
       .func_usage    = NULL,
    },
 
-   // get-pools widget (TODO)
+   // get-pools widget
    {  .name          = "get-pools",
       .aliases       = NULL,
-      .desc          = "Lists loaded pools.",
+      .desc          = "lists loaded pools.",
       .davici_cmd    = "get-pools",
       .davici_event  = NULL,
       .flags         = 0,
       .usage         = "[OPTIONS]",
-      .short_opt     = NULL,
-      .long_opt      = NULL,
+      .short_opt     = MY_SOPT MY_SOPT_LEASES MY_SOPT_NAME,
+      .long_opt      = MY_LOPTS( MY_LOPT_LEASES MY_LOPT_NAME ),
       .arg_min       = 0,
       .arg_max       = 0,
-      .func_exec     = NULL,
+      .func_exec     = &my_widget_generic_command,
       .func_usage    = NULL,
    },
 
@@ -1068,8 +1072,16 @@ my_arguments(
             cnf->ike_sa = optarg;
             break;
 
-         case 'n':
+         case 'l':
+            cnf->flags |= MY_FLG_LEASES;
+            break;
+
+         case 'N':
             cnf->flags |= MY_FLG_NOBLOCK;
+            break;
+
+         case 'n':
+            cnf->opt_name = optarg;
             break;
 
          case 'O':
@@ -1364,7 +1376,8 @@ my_usage(
    if ((strchr(short_opt, 'h'))) printf("  -h,        --help            print this help and exit\n");
    if ((strchr(short_opt, 'I'))) printf("  -I id,     --ike-id=id       filter IKE_SAs by unique identifier\n");
    if ((strchr(short_opt, 'i'))) printf("  -i name,   --ike=name        filter IKE_SAs by name\n");
-   if ((strchr(short_opt, 'n'))) printf("  -n,        --noblock         don't wait for IKE_SAs in use\n");
+   if ((strchr(short_opt, 'N'))) printf("  -N,        --noblock         don't wait for IKE_SAs in use\n");
+   if ((strchr(short_opt, 'a'))) printf("  -n str,    --name=str        filter by name\n");
    if ((strchr(short_opt, 'O'))) printf("  -O fmt,    --out-format=fmt  output format (json, vici, xml, or yaml)\n");
    if ((strchr(short_opt, 'P'))) printf("  -P,        --pretty          beautify response messages\n");
    if ((strchr(short_opt, 'q'))) printf("  -q,        --quiet, --silent do not print messages\n");
@@ -1611,8 +1624,12 @@ my_widget_generic_command(
       davici_kv(cnf->davici_req, "ike", cnf->ike_sa, (unsigned)strlen(cnf->ike_sa));
    if ((cnf->ike_sa_id))
       davici_kv(cnf->davici_req, "ike-id", cnf->ike_sa_id, (unsigned)strlen(cnf->ike_sa_id));
+   if ((cnf->flags & MY_FLG_LEASES))
+      davici_kv(cnf->davici_req, "leases", "yes", (unsigned)strlen("yes"));
    if ((cnf->flags & MY_FLG_NOBLOCK))
       davici_kv(cnf->davici_req, "noblock", "yes", (unsigned)strlen("yes"));
+   if ((cnf->opt_name))
+      davici_kv(cnf->davici_req, "name", cnf->opt_name, (unsigned)strlen(cnf->opt_name));
 
    // queue command
    if (!(widget->davici_event))
