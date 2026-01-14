@@ -158,6 +158,7 @@ src_davicictl_DEPENDENCIES		= Makefile config.h
 src_davicictl_CPPFLAGS			= -DPROGRAM_NAME="\"davicictl\"" $(AM_CPPFLAGS)
 src_davicictl_SOURCES			= src/davici-utils.h \
 					  src/davicictl.c \
+					  src/davicictl-misc.c \
 					  src/davicictl-parser.c \
 					  src/widget-counters.c \
 					  src/widget-raw.c

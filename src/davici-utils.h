@@ -54,6 +54,7 @@
 
 #include <davici.h>
 #include <poll.h>
+#include <inttypes.h>
 
 
 //////////////
@@ -199,6 +200,14 @@ my_verbose(
 // compatibility prototypes //
 //--------------------------//
 #pragma mark compatibility prototypes
+
+int
+my_base64_encode(
+         char *                        dst,
+         size_t                        s,
+         const uint8_t *               src,
+         size_t                        n );
+
 
 size_t
 my_strlcat(
