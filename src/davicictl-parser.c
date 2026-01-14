@@ -52,6 +52,8 @@
 #include <stdlib.h>
 #include <getopt.h>
 #include <signal.h>
+#include <ctype.h>
+#include <inttypes.h>
 
 #include <davici.h>
 
@@ -106,6 +108,14 @@ my_parse_res_debug_print(
          const char *                  name,
          const char *                  key,
          const char *                  val );
+
+
+static int
+my_get_value(
+         struct davici_response *      res,
+         char *                        buff,
+         size_t                        buff_len,
+         int *                         is_string );
 
 
 //------------------------//
@@ -259,6 +269,47 @@ my_parse_res(
 }
 
 
+int
+my_get_value(
+         struct davici_response *      res,
+         char *                        buff,
+         size_t                        buff_len,
+         int *                         is_string )
+{
+   size_t            c;
+   int               inval;
+   const char *      ptr;
+   unsigned int      ptr_len;
+
+   assert(buff != NULL);
+   assert(buff_len > 2);
+
+   inval = 0;
+
+   // retrieve value
+   if ((ptr = davici_get_value(res, &ptr_len)) == NULL)
+   {  buff[0] = '\0';
+      return(0);
+   };
+   if (buff_len <= (size_t)(ptr_len+1))
+      return(-ENOBUFS);
+
+   // copy to buffer as string
+   for(c = 0; ((c < ptr_len) && (!(inval))); c++)
+      if (!(isprint(buff[c] = ptr[c])))
+         inval = 1;
+   if (!(inval))
+   {  buff[c] = '\0';
+      if ((is_string))
+         *is_string = 1;
+      return(0);
+   };
+
+   // encode value as base64 string
+   return(my_base64_encode(buff, buff_len, (const uint8_t *)ptr, ptr_len));
+}
+
+
 //------------------------//
 // debug format functions //
 //------------------------//
@@ -301,10 +352,10 @@ my_parse_res_debug(
             break;
 
          case DAVICI_KEY_VALUE:
-            rc = davici_get_value_str(res, val, sizeof(val));
+            rc = my_get_value(res, val, sizeof(val), NULL);
             if (rc < 0)
-            {  fprintf(stderr, "%s: davici_get_value_str(): %s\n", PROGRAM_NAME, strerror(-rc));
-               return(0);
+            {  fprintf(stderr, "%s: my_get_value(): %s\n", PROGRAM_NAME, strerror(-rc));
+               return(rc);
             };
             key = davici_get_name(res);
             my_parse_res_debug_print(level, "DAVICI_KEY_VALUE", key, val);
@@ -316,10 +367,10 @@ my_parse_res_debug(
             break;
 
          case DAVICI_LIST_ITEM:
-            rc = davici_get_value_str(res, val, sizeof(val));
+            rc = my_get_value(res, val, sizeof(val), NULL);
             if (rc < 0)
-            {  fprintf(stderr, "%s: davici_get_value_str(): %s\n", PROGRAM_NAME, strerror(-rc));
-               return(0);
+            {  fprintf(stderr, "%s: my_get_value(): %s\n", PROGRAM_NAME, strerror(-rc));
+               return(rc);
             };
             my_parse_res_debug_print(level, "DAVICI_LIST_ITEM", val, NULL);
             break;
@@ -444,10 +495,10 @@ my_parse_res_json(
             break;
 
          case DAVICI_KEY_VALUE:
-            rc = davici_get_value_str(res, val, sizeof(val));
+            rc = my_get_value(res, val, sizeof(val), NULL);
             if (rc < 0)
-            {  fprintf(stderr, "%s: davici_get_value_str(): %s\n", PROGRAM_NAME, strerror(-rc));
-               return(0);
+            {  fprintf(stderr, "%s: my_get_value(): %s\n", PROGRAM_NAME, strerror(-rc));
+               return(rc);
             };
             key = davici_get_name(res);
             my_parse_res_json_delim(cnf, level);
@@ -463,10 +514,10 @@ my_parse_res_json(
             break;
 
          case DAVICI_LIST_ITEM:
-            rc = davici_get_value_str(res, val, sizeof(val));
+            rc = my_get_value(res, val, sizeof(val), NULL);
             if (rc < 0)
-            {  fprintf(stderr, "%s: davici_get_value_str(): %s\n", PROGRAM_NAME, strerror(-rc));
-               return(0);
+            {  fprintf(stderr, "%s: my_get_value(): %s\n", PROGRAM_NAME, strerror(-rc));
+               return(rc);
             };
             my_parse_res_json_delim(cnf, level);
             printf("\"%s\"", val);
@@ -552,10 +603,10 @@ my_parse_res_vici(
             break;
 
          case DAVICI_KEY_VALUE:
-            rc = davici_get_value_str(res, val, sizeof(val));
+            rc = my_get_value(res, val, sizeof(val), NULL);
             if (rc < 0)
-            {  fprintf(stderr, "%s: davici_get_value_str(): %s\n", PROGRAM_NAME, strerror(-rc));
-               return(0);
+            {  fprintf(stderr, "%s: my_get_value(): %s\n", PROGRAM_NAME, strerror(-rc));
+               return(rc);
             };
             key = davici_get_name(res);
             my_parse_res_vici_delim(cnf, level);
@@ -574,10 +625,10 @@ my_parse_res_vici(
             break;
 
          case DAVICI_LIST_ITEM:
-            rc = davici_get_value_str(res, val, sizeof(val));
+            rc = my_get_value(res, val, sizeof(val), NULL);
             if (rc < 0)
-            {  fprintf(stderr, "%s: davici_get_value_str(): %s\n", PROGRAM_NAME, strerror(-rc));
-               return(0);
+            {  fprintf(stderr, "%s: my_get_value(): %s\n", PROGRAM_NAME, strerror(-rc));
+               return(rc);
             };
             my_parse_res_vici_delim(cnf, level);
             printf("%s", val);
@@ -688,9 +739,9 @@ my_parse_res_xml(
             break;
 
          case DAVICI_KEY_VALUE:
-            rc = davici_get_value_str(res, val, sizeof(val));
+            rc = my_get_value(res, val, sizeof(val), NULL);
             if (rc < 0)
-            {  fprintf(stderr, "%s: davici_get_value_str(): %s\n", PROGRAM_NAME, strerror(-rc));
+            {  fprintf(stderr, "%s: my_get_value(): %s\n", PROGRAM_NAME, strerror(-rc));
                my_parse_res_xml_sect_free(sects);
                return(rc);
             };
@@ -710,9 +761,9 @@ my_parse_res_xml(
             break;
 
          case DAVICI_LIST_ITEM:
-            rc = davici_get_value_str(res, val, sizeof(val));
+            rc = my_get_value(res, val, sizeof(val), NULL);
             if (rc < 0)
-            {  fprintf(stderr, "%s: davici_get_value_str(): %s\n", PROGRAM_NAME, strerror(-rc));
+            {  fprintf(stderr, "%s: my_get_value(): %s\n", PROGRAM_NAME, strerror(-rc));
                my_parse_res_xml_sect_free(sects);
                return(rc);
             };
@@ -841,10 +892,10 @@ my_parse_res_yaml(
             break;
 
          case DAVICI_KEY_VALUE:
-            rc = davici_get_value_str(res, val, sizeof(val));
+            rc = my_get_value(res, val, sizeof(val), NULL);
             if (rc < 0)
-            {  fprintf(stderr, "%s: davici_get_value_str(): %s\n", PROGRAM_NAME, strerror(-rc));
-               return(0);
+            {  fprintf(stderr, "%s: my_get_value(): %s\n", PROGRAM_NAME, strerror(-rc));
+               return(rc);
             };
             key = davici_get_name(res);
             my_parse_res_yaml_delim(cnf, level);
@@ -860,10 +911,10 @@ my_parse_res_yaml(
             break;
 
          case DAVICI_LIST_ITEM:
-            rc = davici_get_value_str(res, val, sizeof(val));
+            rc = my_get_value(res, val, sizeof(val), NULL);
             if (rc < 0)
-            {  fprintf(stderr, "%s: davici_get_value_str(): %s\n", PROGRAM_NAME, strerror(-rc));
-               return(0);
+            {  fprintf(stderr, "%s: my_get_value(): %s\n", PROGRAM_NAME, strerror(-rc));
+               return(rc);
             };
             my_parse_res_yaml_delim(cnf, level);
             printf("- %s\n", val);
