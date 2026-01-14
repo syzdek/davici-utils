@@ -63,31 +63,27 @@
 ///////////////////
 // MARK: - Definitions
 
-#undef   DAVUTL_SHORT_OPT
-#define  DAVUTL_SHORT_OPT        "hO:Pqu:Vv"
+#define  MY_SOPT              "hO:Pqu:Vv"
+#define  MY_SOPT_CHILD        "c:"
+#define  MY_SOPT_CHILD_ID     "C:"
+#define  MY_SOPT_IKE          "i:"
+#define  MY_SOPT_IKE_ID       "I:"
+#define  MY_SOPT_NOBLOCK      "n"
 
-#undef   DAVUTL_SHORT_IKE
-#define  DAVUTL_SHORT_IKE        "C:c:I:i:n"
-
-#undef   DAVUTL_LONG_OPT
-#define  DAVUTL_LONG_OPT \
-   { "help",            no_argument,         NULL, 'h' }, \
-   { "out-format",      required_argument,   NULL, 'O' }, \
-   { "pretty",          no_argument,         NULL, 'P' }, \
-   { "quiet",           no_argument,         NULL, 'q' }, \
-   { "silent",          no_argument,         NULL, 'q' }, \
-   { "socket",          required_argument,   NULL, 'u' }, \
-   { "version",         no_argument,         NULL, 'V' }, \
-   { "verbose",         no_argument,         NULL, 'v' }, \
-   { NULL, 0, NULL, 0 }
-
-#undef   DAVUTL_LONG_IKE
-#define  DAVUTL_LONG_IKE \
-   { "ike",             required_argument,   NULL, 'i' }, \
-   { "ike-id",          required_argument,   NULL, 'I' }, \
-   { "child",           required_argument,   NULL, 'c' }, \
-   { "child-id",        required_argument,   NULL, 'C' }, \
-   { "noblock",         required_argument,   NULL, 'n' },
+#define  MY_LOPT              { "help",            no_argument,         NULL, 'h' }, \
+                              { "out-format",      required_argument,   NULL, 'O' }, \
+                              { "pretty",          no_argument,         NULL, 'P' }, \
+                              { "quiet",           no_argument,         NULL, 'q' }, \
+                              { "silent",          no_argument,         NULL, 'q' }, \
+                              { "socket",          required_argument,   NULL, 'u' }, \
+                              { "version",         no_argument,         NULL, 'V' }, \
+                              { "verbose",         no_argument,         NULL, 'v' }, \
+                              { NULL, 0, NULL, 0 }
+#define  MY_LOPT_CHILD        { "child",           required_argument,   NULL, 'c' },
+#define  MY_LOPT_CHILD_ID     { "child-id",        required_argument,   NULL, 'C' },
+#define  MY_LOPT_IKE          { "ike",             required_argument,   NULL, 'i' },
+#define  MY_LOPT_IKE_ID       { "ike-id",          required_argument,   NULL, 'I' },
+#define  MY_LOPT_NOBLOCK      { "noblock",         no_argument,         NULL, 'n' },
 
 
 //////////////
@@ -97,8 +93,8 @@
 //////////////
 // MARK: - Macros
 
-#undef   DAVUTL_LONG
-#define  DAVUTL_LONG(...) (const struct option []) { __VA_ARGS__ DAVUTL_LONG_OPT }
+#undef   MY_LOPTS
+#define  MY_LOPTS(...) (const struct option []) { __VA_ARGS__ MY_LOPT }
 
 
 /////////////////
@@ -543,8 +539,8 @@ static my_widget_t my_widget_map[] =
       .davici_event  = "list-sa",
       .flags         = 0,
       .usage         = "[OPTIONS]",
-      .short_opt     = DAVUTL_SHORT_OPT DAVUTL_SHORT_IKE,
-      .long_opt      = DAVUTL_LONG( DAVUTL_LONG_IKE ),
+      .short_opt     = MY_SOPT MY_SOPT_CHILD MY_SOPT_CHILD_ID MY_SOPT_IKE MY_SOPT_IKE_ID MY_SOPT_NOBLOCK,
+      .long_opt      = MY_LOPTS( MY_LOPT_CHILD MY_LOPT_CHILD_ID MY_LOPT_IKE MY_LOPT_IKE_ID MY_LOPT_NOBLOCK ),
       .arg_min       = 0,
       .arg_max       = 0,
       .func_exec     = &my_widget_generic_command,
@@ -1007,10 +1003,10 @@ my_arguments(
    opt_index      = 0;
    short_opt      = ( ((widget)) && ((widget->short_opt)) )
                   ? widget->short_opt
-                  : "+" DAVUTL_SHORT_OPT;
+                  : "+" MY_SOPT;
    long_opt       = ( ((widget)) && ((widget->long_opt)) )
                   ? cnf->widget->long_opt
-                  : DAVUTL_LONG();
+                  : MY_LOPTS();
 
    while((c = getopt_long(argc, argv, short_opt, long_opt, &opt_index)) != -1)
    {  switch(c)
@@ -1307,8 +1303,8 @@ my_usage(
    assert(cnf != NULL);
 
    widget_name  = (!(cnf->widget)) ? "widget"               : cnf->widget->name;
-   short_opt    = ((cnf->widget))  ? cnf->widget->short_opt : DAVUTL_SHORT_OPT;
-   short_opt    = ((short_opt))    ? short_opt              : DAVUTL_SHORT_OPT;
+   short_opt    = ((cnf->widget))  ? cnf->widget->short_opt : MY_SOPT;
+   short_opt    = ((short_opt))    ? short_opt              : MY_SOPT;
    widget_help  = "";
    if ((cnf->widget))
       widget_help = ((cnf->widget->usage)) ? cnf->widget->usage : "";
