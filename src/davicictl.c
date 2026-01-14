@@ -72,8 +72,10 @@
 #define  MY_SOPT_IKE          "i:"
 #define  MY_SOPT_IKE_ID       "I:"
 #define  MY_SOPT_LEASES       "l"
+#define  MY_SOPT_LOGLEVEL     "L:"
 #define  MY_SOPT_NAME         "n:"
 #define  MY_SOPT_NOBLOCK      "N"
+#define  MY_SOPT_TIMEOUT      "t:"
 
 #define  MY_LOPT              { "help",            no_argument,         NULL, 'h' }, \
                               { "out-format",      required_argument,   NULL, 'O' }, \
@@ -92,8 +94,10 @@
 #define  MY_LOPT_IKE          { "ike",             required_argument,   NULL, 'i' },
 #define  MY_LOPT_IKE_ID       { "ike-id",          required_argument,   NULL, 'I' },
 #define  MY_LOPT_LEASES       { "leases",          no_argument,         NULL, 'l' },
+#define  MY_LOPT_LOGLEVEL     { "loglevel",        required_argument,   NULL, 'L' },
 #define  MY_LOPT_NAME         { "name",            required_argument,   NULL, 'n' },
 #define  MY_LOPT_NOBLOCK      { "noblock",         no_argument,         NULL, 'N' },
+#define  MY_LOPT_TIMEOUT      { "name",            required_argument,   NULL, 'n' },
 
 
 //////////////
@@ -445,7 +449,7 @@ static my_widget_t my_widget_map[] =
       .func_usage    = NULL,
    },
 
-   // initiate widget (TODO)
+   // initiate widget
    {  .name          = "initiate",
       .aliases       = NULL,
       .desc          = "initiates an SA",
@@ -453,11 +457,11 @@ static my_widget_t my_widget_map[] =
       .davici_event  = "control-log",
       .flags         = 0,
       .usage         = "[OPTIONS]",
-      .short_opt     = NULL,
-      .long_opt      = NULL,
+      .short_opt     = MY_SOPT MY_SOPT_CHILD MY_SOPT_IKE MY_SOPT_TIMEOUT MY_SOPT_LOGLEVEL,
+      .long_opt      = MY_LOPTS( MY_LOPT_CHILD MY_LOPT_IKE MY_LOPT_TIMEOUT MY_LOPT_LOGLEVEL ),
       .arg_min       = 0,
       .arg_max       = 0,
-      .func_exec     = NULL,
+      .func_exec     = &my_widget_generic_command,
       .func_usage    = NULL,
    },
 
@@ -1076,6 +1080,10 @@ my_arguments(
             cnf->flags |= MY_FLG_LEASES;
             break;
 
+         case 'L':
+            cnf->opt_loglevel = optarg;
+            break;
+
          case 'N':
             cnf->flags |= MY_FLG_NOBLOCK;
             break;
@@ -1108,6 +1116,10 @@ my_arguments(
                fprintf(stderr, "Try `%s --help' for more information.\n",  my_prog_name(cnf));
                return(1);
             };
+            break;
+
+         case 't':
+            cnf->opt_timeout = optarg;
             break;
 
          case 'u':
@@ -1369,18 +1381,21 @@ my_usage(
    };
    printf("OPTIONS:\n");
    if ((strchr(short_opt, 'a'))) printf("  -a         --all             all IKE connections and IKE SA\n");
-   if ((strchr(short_opt, 'C'))) printf("  -C id,     --child-id=id     filter CHILD_SAs by unique identifier\n");
-   if ((strchr(short_opt, 'c'))) printf("  -c name,   --child=name      filter CHILD_SAs by name\n");
+   if ((strchr(short_opt, 'C'))) printf("  -C id,     --child-id=id     filter child by unique identifier\n");
+   if ((strchr(short_opt, 'c'))) printf("  -c name,   --child=name      filter child SA or child connection by name\n");
    if ((strchr(short_opt, 'E'))) printf("  -E str,    --event=str       vici event to register\n");
    if ((strchr(short_opt, 'e'))) printf("  -e str,    --command=str     vici command to queue\n");
    if ((strchr(short_opt, 'h'))) printf("  -h,        --help            print this help and exit\n");
-   if ((strchr(short_opt, 'I'))) printf("  -I id,     --ike-id=id       filter IKE_SAs by unique identifier\n");
-   if ((strchr(short_opt, 'i'))) printf("  -i name,   --ike=name        filter IKE_SAs by name\n");
+   if ((strchr(short_opt, 'I'))) printf("  -I id,     --ike-id=id       filter IKE SA by unique identifier\n");
+   if ((strchr(short_opt, 'i'))) printf("  -i name,   --ike=name        filter IKE SA or IKE connection by name\n");
+   if ((strchr(short_opt, 'L'))) printf("  -L level,  --loglevel=level  verbosity of log\n");
+   if ((strchr(short_opt, 'l'))) printf("  -l,        --leases          list leases of each pool\n");
    if ((strchr(short_opt, 'N'))) printf("  -N,        --noblock         don't wait for IKE_SAs in use\n");
-   if ((strchr(short_opt, 'a'))) printf("  -n str,    --name=str        filter by name\n");
+   if ((strchr(short_opt, 'n'))) printf("  -n str,    --name=str        filter by name\n");
    if ((strchr(short_opt, 'O'))) printf("  -O fmt,    --out-format=fmt  output format (json, vici, xml, or yaml)\n");
    if ((strchr(short_opt, 'P'))) printf("  -P,        --pretty          beautify response messages\n");
    if ((strchr(short_opt, 'q'))) printf("  -q,        --quiet, --silent do not print messages\n");
+   if ((strchr(short_opt, 't'))) printf("  -t sec,    --timeout=sec     timeout in seconds before detaching\n");
    if ((strchr(short_opt, 'u'))) printf("  -u path,   --socket=path     path to vici socket\n");
    if ((strchr(short_opt, 'V'))) printf("  -V,        --version         print version number and exit\n");
    if ((strchr(short_opt, 'v'))) printf("  -v,        --verbose         print verbose messages\n");
@@ -1576,8 +1591,12 @@ my_widget_generic_command(
       davici_kv(cnf->davici_req, "leases", "yes", (unsigned)strlen("yes"));
    if ((cnf->flags & MY_FLG_NOBLOCK))
       davici_kv(cnf->davici_req, "noblock", "yes", (unsigned)strlen("yes"));
+   if ((cnf->opt_loglevel))
+      davici_kv(cnf->davici_req, "loglevel", cnf->opt_loglevel, (unsigned)strlen(cnf->opt_loglevel));
    if ((cnf->opt_name))
       davici_kv(cnf->davici_req, "name", cnf->opt_name, (unsigned)strlen(cnf->opt_name));
+   if ((cnf->opt_timeout))
+      davici_kv(cnf->davici_req, "timeout", cnf->opt_timeout, (unsigned)strlen(cnf->opt_timeout));
 
    // queue command
    if (!(widget->davici_event))

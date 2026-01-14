@@ -140,6 +140,8 @@ struct _my_config
    const char *                  child_sa;
    const char *                  child_sa_id;
    const char *                  opt_name;
+   const char *                  opt_timeout;
+   const char *                  opt_loglevel;
    const my_widget_t *           widget;
    struct davici_conn *          davici_conn;
    struct davici_request *       davici_req;
