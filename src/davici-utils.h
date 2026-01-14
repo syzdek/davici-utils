@@ -100,6 +100,9 @@
 #define MY_FLG_ALL_IKE        0x00000008
 #define MY_FLG_LEASES         0x00000010
 #define MY_FLG_FORCE          0x00000020
+#define MY_FLG_POLS_DROP      0x00000040
+#define MY_FLG_POLS_BYPASS    0x00000080
+#define MY_FLG_POLS_TRAP      0x00000100
 
 #define MY_FMT_DEFAULT        0x00000000
 #define MY_FMT_DEBUG          0x00000001

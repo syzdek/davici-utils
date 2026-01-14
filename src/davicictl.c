@@ -65,8 +65,10 @@
 
 #define  MY_SOPT              "hO:Pqu:Vv"
 #define  MY_SOPT_ALL_IKE      "a"
+#define  MY_SOPT_BYPASS       "B"
 #define  MY_SOPT_CHILD        "c:"
 #define  MY_SOPT_CHILD_ID     "C:"
+#define  MY_SOPT_DROP         "D"
 #define  MY_SOPT_COMMAND      "e:"
 #define  MY_SOPT_EVENT        "E:"
 #define  MY_SOPT_FORCE        "f"
@@ -77,6 +79,8 @@
 #define  MY_SOPT_NAME         "n:"
 #define  MY_SOPT_NOBLOCK      "N"
 #define  MY_SOPT_TIMEOUT      "t:"
+#define  MY_SOPT_TRAP         "T"
+
 
 #define  MY_LOPT              { "help",            no_argument,         NULL, 'h' }, \
                               { "out-format",      required_argument,   NULL, 'O' }, \
@@ -88,9 +92,11 @@
                               { "verbose",         no_argument,         NULL, 'v' }, \
                               { NULL, 0, NULL, 0 }
 #define  MY_LOPT_ALL_IKE      { "all",             no_argument,         NULL, 'a' },
+#define  MY_LOPT_BYPASS       { "bypass",          no_argument,         NULL, 'B' },
 #define  MY_LOPT_CHILD        { "child",           required_argument,   NULL, 'c' },
 #define  MY_LOPT_CHILD_ID     { "child-id",        required_argument,   NULL, 'C' },
 #define  MY_LOPT_COMMAND      { "command",         required_argument,   NULL, 'e' },
+#define  MY_LOPT_DROP         { "drop",            no_argument,         NULL, 'D' },
 #define  MY_LOPT_EVENT        { "event",           required_argument,   NULL, 'E' },
 #define  MY_LOPT_FORCE        { "force",           no_argument,         NULL, 'f' },
 #define  MY_LOPT_IKE          { "ike",             required_argument,   NULL, 'i' },
@@ -100,6 +106,7 @@
 #define  MY_LOPT_NAME         { "name",            required_argument,   NULL, 'n' },
 #define  MY_LOPT_NOBLOCK      { "noblock",         no_argument,         NULL, 'N' },
 #define  MY_LOPT_TIMEOUT      { "name",            required_argument,   NULL, 'n' },
+#define  MY_LOPT_TRAP         { "trap",            no_argument,         NULL, 'T' },
 
 
 //////////////
@@ -531,7 +538,7 @@ static my_widget_t my_widget_map[] =
       .func_usage    = NULL,
    },
 
-   // list-policies widget (TODO)
+   // list-policies widget
    {  .name          = "list-policies",
       .aliases       = NULL,
       .desc          = "lists installed trap, drop and bypass policies",
@@ -539,11 +546,11 @@ static my_widget_t my_widget_map[] =
       .davici_event  = "list-policy",
       .flags         = 0,
       .usage         = "[OPTIONS]",
-      .short_opt     = NULL,
-      .long_opt      = NULL,
+      .short_opt     = MY_SOPT   MY_SOPT_BYPASS MY_SOPT_CHILD MY_SOPT_DROP MY_SOPT_IKE MY_SOPT_TRAP,
+      .long_opt      = MY_LOPTS( MY_LOPT_BYPASS MY_LOPT_CHILD MY_LOPT_DROP MY_LOPT_IKE MY_LOPT_TRAP ),
       .arg_min       = 0,
       .arg_max       = 0,
-      .func_exec     = NULL,
+      .func_exec     = &my_widget_generic_command,
       .func_usage    = NULL,
    },
 
@@ -1050,12 +1057,20 @@ my_arguments(
             cnf->flags |= MY_FLG_ALL_IKE;
             break;
 
+         case 'B':
+            cnf->flags |= MY_FLG_POLS_BYPASS;
+            break;
+
          case 'C':
             cnf->child_sa_id = optarg;
             break;
 
          case 'c':
             cnf->child_sa = optarg;
+            break;
+
+         case 'D':
+            cnf->flags |= MY_FLG_POLS_DROP;
             break;
 
          case 'E':
@@ -1122,6 +1137,10 @@ my_arguments(
                fprintf(stderr, "Try `%s --help' for more information.\n",  my_prog_name(cnf));
                return(1);
             };
+            break;
+
+         case 'T':
+            cnf->flags |= MY_FLG_POLS_TRAP;
             break;
 
          case 't':
@@ -1386,9 +1405,11 @@ my_usage(
    {  printf("Usage: %s %s\n", cnf->prog_name, widget_help);
    };
    printf("OPTIONS:\n");
-   if ((strchr(short_opt, 'a'))) printf("  -a         --all             all IKE connections and IKE SA\n");
+   if ((strchr(short_opt, 'a'))) printf("  -a,        --all             all IKE connections and IKE SA\n");
+   if ((strchr(short_opt, 'B'))) printf("  -B,        --bypass          list bypass policies\n");
    if ((strchr(short_opt, 'C'))) printf("  -C id,     --child-id=id     filter child by unique identifier\n");
    if ((strchr(short_opt, 'c'))) printf("  -c name,   --child=name      filter child SA or child connection by name\n");
+   if ((strchr(short_opt, 'D'))) printf("  -D,        --drop            list drop policies\n");
    if ((strchr(short_opt, 'E'))) printf("  -E str,    --event=str       vici event to register\n");
    if ((strchr(short_opt, 'e'))) printf("  -e str,    --command=str     vici command to queue\n");
    if ((strchr(short_opt, 'f'))) printf("  -f,        --force           terminate IKE SA immediately unless using timeout\n");
@@ -1402,6 +1423,7 @@ my_usage(
    if ((strchr(short_opt, 'O'))) printf("  -O fmt,    --out-format=fmt  output format (json, vici, xml, or yaml)\n");
    if ((strchr(short_opt, 'P'))) printf("  -P,        --pretty          beautify response messages\n");
    if ((strchr(short_opt, 'q'))) printf("  -q,        --quiet, --silent do not print messages\n");
+   if ((strchr(short_opt, 'T'))) printf("  -T,        --trap            list trap policies\n");
    if ((strchr(short_opt, 't'))) printf("  -t ms,     --timeout=ms      timeout in milliseconds before detaching\n");
    if ((strchr(short_opt, 'u'))) printf("  -u path,   --socket=path     path to vici socket\n");
    if ((strchr(short_opt, 'V'))) printf("  -V,        --version         print version number and exit\n");
@@ -1594,12 +1616,18 @@ my_widget_generic_command(
       davici_kv(cnf->davici_req, "ike", cnf->ike_sa, (unsigned)strlen(cnf->ike_sa));
    if ((cnf->ike_sa_id))
       davici_kv(cnf->davici_req, "ike-id", cnf->ike_sa_id, (unsigned)strlen(cnf->ike_sa_id));
+   if ((cnf->flags & MY_FLG_POLS_BYPASS))
+      davici_kv(cnf->davici_req, "pass", "yes", (unsigned)strlen("yes"));
+   if ((cnf->flags & MY_FLG_POLS_DROP))
+      davici_kv(cnf->davici_req, "drop", "yes", (unsigned)strlen("yes"));
    if ((cnf->flags & MY_FLG_FORCE))
       davici_kv(cnf->davici_req, "force", "yes", (unsigned)strlen("yes"));
    if ((cnf->flags & MY_FLG_LEASES))
       davici_kv(cnf->davici_req, "leases", "yes", (unsigned)strlen("yes"));
    if ((cnf->flags & MY_FLG_NOBLOCK))
       davici_kv(cnf->davici_req, "noblock", "yes", (unsigned)strlen("yes"));
+   if ((cnf->flags & MY_FLG_POLS_TRAP))
+      davici_kv(cnf->davici_req, "trap", "yes", (unsigned)strlen("yes"));
    if ((cnf->opt_loglevel))
       davici_kv(cnf->davici_req, "loglevel", cnf->opt_loglevel, (unsigned)strlen(cnf->opt_loglevel));
    if ((cnf->opt_name))
