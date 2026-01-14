@@ -103,6 +103,7 @@
 #define MY_FLG_POLS_DROP      0x00000040
 #define MY_FLG_POLS_BYPASS    0x00000080
 #define MY_FLG_POLS_TRAP      0x00000100
+#define MY_FLG_REAUTH         0x00000200
 
 #define MY_FMT_DEFAULT        0x00000000
 #define MY_FMT_DEBUG          0x00000001
@@ -282,6 +283,11 @@ my_widget_counters(
 
 extern int
 my_widget_raw(
+         my_config_t *                 cnf );
+
+
+extern int
+my_widget_rekey(
          my_config_t *                 cnf );
 
 

@@ -78,6 +78,7 @@
 #define  MY_SOPT_LOGLEVEL     "L:"
 #define  MY_SOPT_NAME         "n:"
 #define  MY_SOPT_NOBLOCK      "N"
+#define  MY_SOPT_REAUTH       "A"
 #define  MY_SOPT_TIMEOUT      "t:"
 #define  MY_SOPT_TRAP         "T"
 
@@ -105,6 +106,7 @@
 #define  MY_LOPT_LOGLEVEL     { "loglevel",        required_argument,   NULL, 'L' },
 #define  MY_LOPT_NAME         { "name",            required_argument,   NULL, 'n' },
 #define  MY_LOPT_NOBLOCK      { "noblock",         no_argument,         NULL, 'N' },
+#define  MY_LOPT_REAUTH       { "reauth",          no_argument,         NULL, 'A' },
 #define  MY_LOPT_TIMEOUT      { "name",            required_argument,   NULL, 'n' },
 #define  MY_LOPT_TRAP         { "trap",            no_argument,         NULL, 'T' },
 
@@ -730,7 +732,7 @@ static my_widget_t my_widget_map[] =
       .func_usage    = NULL,
    },
 
-   // rekey widget (TODO)
+   // rekey widget
    {  .name          = "rekey",
       .aliases       = NULL,
       .desc          = "initiates rekeying of an SA",
@@ -738,11 +740,11 @@ static my_widget_t my_widget_map[] =
       .davici_event  = "ike-rekey",
       .flags         = 0,
       .usage         = "[OPTIONS]",
-      .short_opt     = NULL,
-      .long_opt      = NULL,
+      .short_opt     = MY_SOPT   MY_SOPT_CHILD MY_SOPT_CHILD_ID MY_SOPT_IKE MY_SOPT_IKE_ID MY_SOPT_REAUTH,
+      .long_opt      = MY_LOPTS( MY_LOPT_CHILD MY_LOPT_CHILD_ID MY_LOPT_IKE MY_LOPT_IKE_ID MY_LOPT_REAUTH ),
       .arg_min       = 0,
       .arg_max       = 0,
-      .func_exec     = NULL,
+      .func_exec     = &my_widget_rekey,
       .func_usage    = NULL,
    },
 
@@ -1052,6 +1054,10 @@ my_arguments(
       {  case -1:       /* no more arguments */
          case 0:        /* long options toggles */
          break;
+
+         case 'A':
+            cnf->flags |= MY_FLG_REAUTH;
+            break;
 
          case 'a':
             cnf->flags |= MY_FLG_ALL_IKE;
@@ -1405,6 +1411,7 @@ my_usage(
    {  printf("Usage: %s %s\n", cnf->prog_name, widget_help);
    };
    printf("OPTIONS:\n");
+   if ((strchr(short_opt, 'A'))) printf("  -A,        --reauth          reauthenticate instead of rekey an IKEv2 SA\n");
    if ((strchr(short_opt, 'a'))) printf("  -a,        --all             all IKE connections and IKE SA\n");
    if ((strchr(short_opt, 'B'))) printf("  -B,        --bypass          list bypass policies\n");
    if ((strchr(short_opt, 'C'))) printf("  -C id,     --child-id=id     filter child by unique identifier\n");
@@ -1626,6 +1633,8 @@ my_widget_generic_command(
       davici_kv(cnf->davici_req, "leases", "yes", (unsigned)strlen("yes"));
    if ((cnf->flags & MY_FLG_NOBLOCK))
       davici_kv(cnf->davici_req, "noblock", "yes", (unsigned)strlen("yes"));
+   if ((cnf->flags & MY_FLG_REAUTH))
+      davici_kv(cnf->davici_req, "reauth", "yes", (unsigned)strlen("yes"));
    if ((cnf->flags & MY_FLG_POLS_TRAP))
       davici_kv(cnf->davici_req, "trap", "yes", (unsigned)strlen("yes"));
    if ((cnf->opt_loglevel))

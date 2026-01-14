@@ -161,7 +161,8 @@ src_davicictl_SOURCES			= src/davici-utils.h \
 					  src/davicictl-misc.c \
 					  src/davicictl-parser.c \
 					  src/widget-counters.c \
-					  src/widget-raw.c
+					  src/widget-raw.c \
+					  src/widget-rekey.c
 
 
 # Makefile includes
