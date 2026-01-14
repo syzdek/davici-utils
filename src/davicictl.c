@@ -1339,6 +1339,8 @@ my_poll(
          };
          continue;
       };
+      if (!(rc))
+         continue;
       if ((cnf->pollfd.revents & POLLIN))
       {  my_verbose(cnf, "reading data from vici socket ...\n");
          if ((rc = davici_read(cnf->davici_conn)) < 0)
