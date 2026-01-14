@@ -99,6 +99,7 @@
 #define MY_FLG_STREAM         0x00000004
 #define MY_FLG_ALL_IKE        0x00000008
 #define MY_FLG_LEASES         0x00000010
+#define MY_FLG_FORCE          0x00000020
 
 #define MY_FMT_DEFAULT        0x00000000
 #define MY_FMT_DEBUG          0x00000001

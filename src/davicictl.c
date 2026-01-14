@@ -69,6 +69,7 @@
 #define  MY_SOPT_CHILD_ID     "C:"
 #define  MY_SOPT_COMMAND      "e:"
 #define  MY_SOPT_EVENT        "E:"
+#define  MY_SOPT_FORCE        "f"
 #define  MY_SOPT_IKE          "i:"
 #define  MY_SOPT_IKE_ID       "I:"
 #define  MY_SOPT_LEASES       "l"
@@ -91,6 +92,7 @@
 #define  MY_LOPT_CHILD_ID     { "child-id",        required_argument,   NULL, 'C' },
 #define  MY_LOPT_COMMAND      { "command",         required_argument,   NULL, 'e' },
 #define  MY_LOPT_EVENT        { "event",           required_argument,   NULL, 'E' },
+#define  MY_LOPT_FORCE        { "force",           no_argument,         NULL, 'f' },
 #define  MY_LOPT_IKE          { "ike",             required_argument,   NULL, 'i' },
 #define  MY_LOPT_IKE_ID       { "ike-id",          required_argument,   NULL, 'I' },
 #define  MY_LOPT_LEASES       { "leases",          no_argument,         NULL, 'l' },
@@ -785,7 +787,7 @@ static my_widget_t my_widget_map[] =
       .func_usage    = NULL,
    },
 
-   // terminate widget (TODO)
+   // terminate widget
    {  .name          = "terminate",
       .aliases       = NULL,
       .desc          = "terminates an SA",
@@ -793,11 +795,11 @@ static my_widget_t my_widget_map[] =
       .davici_event  = "control-log",
       .flags         = 0,
       .usage         = "[OPTIONS]",
-      .short_opt     = NULL,
-      .long_opt      = NULL,
+      .short_opt     = MY_SOPT   MY_SOPT_CHILD MY_SOPT_CHILD_ID MY_SOPT_FORCE MY_SOPT_IKE MY_SOPT_IKE_ID MY_SOPT_TIMEOUT MY_SOPT_LOGLEVEL,
+      .long_opt      = MY_LOPTS( MY_LOPT_CHILD MY_LOPT_CHILD_ID MY_LOPT_FORCE MY_LOPT_IKE MY_LOPT_IKE_ID MY_LOPT_TIMEOUT MY_LOPT_LOGLEVEL ),
       .arg_min       = 0,
       .arg_max       = 0,
-      .func_exec     = NULL,
+      .func_exec     = &my_widget_generic_command,
       .func_usage    = NULL,
    },
 
@@ -1062,6 +1064,10 @@ my_arguments(
 
          case 'e':
             cnf->alt_command = optarg;
+            break;
+
+         case 'f':
+            cnf->flags |= MY_FLG_FORCE;
             break;
 
          case 'h':
@@ -1385,6 +1391,7 @@ my_usage(
    if ((strchr(short_opt, 'c'))) printf("  -c name,   --child=name      filter child SA or child connection by name\n");
    if ((strchr(short_opt, 'E'))) printf("  -E str,    --event=str       vici event to register\n");
    if ((strchr(short_opt, 'e'))) printf("  -e str,    --command=str     vici command to queue\n");
+   if ((strchr(short_opt, 'f'))) printf("  -f,        --force           terminate IKE SA immediately unless using timeout\n");
    if ((strchr(short_opt, 'h'))) printf("  -h,        --help            print this help and exit\n");
    if ((strchr(short_opt, 'I'))) printf("  -I id,     --ike-id=id       filter IKE SA by unique identifier\n");
    if ((strchr(short_opt, 'i'))) printf("  -i name,   --ike=name        filter IKE SA or IKE connection by name\n");
@@ -1395,7 +1402,7 @@ my_usage(
    if ((strchr(short_opt, 'O'))) printf("  -O fmt,    --out-format=fmt  output format (json, vici, xml, or yaml)\n");
    if ((strchr(short_opt, 'P'))) printf("  -P,        --pretty          beautify response messages\n");
    if ((strchr(short_opt, 'q'))) printf("  -q,        --quiet, --silent do not print messages\n");
-   if ((strchr(short_opt, 't'))) printf("  -t sec,    --timeout=sec     timeout in seconds before detaching\n");
+   if ((strchr(short_opt, 't'))) printf("  -t ms,     --timeout=ms      timeout in milliseconds before detaching\n");
    if ((strchr(short_opt, 'u'))) printf("  -u path,   --socket=path     path to vici socket\n");
    if ((strchr(short_opt, 'V'))) printf("  -V,        --version         print version number and exit\n");
    if ((strchr(short_opt, 'v'))) printf("  -v,        --verbose         print verbose messages\n");
@@ -1587,6 +1594,8 @@ my_widget_generic_command(
       davici_kv(cnf->davici_req, "ike", cnf->ike_sa, (unsigned)strlen(cnf->ike_sa));
    if ((cnf->ike_sa_id))
       davici_kv(cnf->davici_req, "ike-id", cnf->ike_sa_id, (unsigned)strlen(cnf->ike_sa_id));
+   if ((cnf->flags & MY_FLG_FORCE))
+      davici_kv(cnf->davici_req, "force", "yes", (unsigned)strlen("yes"));
    if ((cnf->flags & MY_FLG_LEASES))
       davici_kv(cnf->davici_req, "leases", "yes", (unsigned)strlen("yes"));
    if ((cnf->flags & MY_FLG_NOBLOCK))
