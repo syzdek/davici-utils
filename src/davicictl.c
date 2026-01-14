@@ -1433,58 +1433,6 @@ my_version(
 }
 
 
-//--------------------------//
-// compatibility prototypes //
-//--------------------------//
-#pragma mark compatibility prototypes
-
-size_t
-my_strlcat(
-         char * restrict               dst,
-         const char * restrict         src,
-         size_t                        dstsize )
-{
-   size_t      len;
-
-   assert(src     != NULL);
-   assert(dstsize  > 0);
-
-   for(len = 0; ((*dst)); len++, dst++);
-   if (!(src))
-      return(len);
-
-   dstsize--;
-   for(; ( (len < dstsize) && ((*dst = *src)) ); len++, dst++, src++);
-   *dst = '\0';
-
-   for(; ((*src)); len++, src++);
-
-   return(len);
-}
-
-
-size_t
-my_strlcpy(
-         char * restrict               dst,
-         const char * restrict         src,
-         size_t                        dstsize )
-{
-   size_t      len;
-
-   assert(dst     != NULL);
-   assert(src     != NULL);
-   assert(dstsize  > 0);
-
-   dstsize--;
-   for(len = 0; ( (len < dstsize) && ((*dst = *src)) ); len++, dst++, src++);
-   *dst = '\0';
-
-   for(; ((*src)); len++, src++);
-
-   return(len);
-}
-
-
 //------------------//
 // davici functions //
 //------------------//
