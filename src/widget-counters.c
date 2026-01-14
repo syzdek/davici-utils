@@ -105,7 +105,7 @@
 
 
 int
-my_widget_get_counters(
+my_widget_counters(
          my_config_t *                 cnf )
 {
    int               rc;

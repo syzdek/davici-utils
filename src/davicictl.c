@@ -328,7 +328,7 @@ static my_widget_t my_widget_map[] =
    // get-counters widget
    {  .name          = "get-counters",
       .aliases       = NULL,
-      .desc          = "Lists global or connection-specific counters",
+      .desc          = "lists global or connection-specific counters",
       .davici_cmd    = "get-counters",
       .davici_event  = NULL,
       .flags         = 0,
@@ -337,7 +337,7 @@ static my_widget_t my_widget_map[] =
       .long_opt      = MY_LOPTS( MY_LOPT_ALL_IKE MY_LOPT_IKE ),
       .arg_min       = 0,
       .arg_max       = 0,
-      .func_exec     = &my_widget_get_counters,
+      .func_exec     = &my_widget_counters,
       .func_usage    = NULL,
    },
 
@@ -725,7 +725,7 @@ static my_widget_t my_widget_map[] =
       .func_usage    = NULL,
    },
 
-   // reset-counters widget (TODO)
+   // reset-counters widget
    {  .name          = "reset-counters",
       .aliases       = NULL,
       .desc          = "resets global or connection-specific counters",
@@ -733,11 +733,11 @@ static my_widget_t my_widget_map[] =
       .davici_event  = NULL,
       .flags         = 0,
       .usage         = "[OPTIONS]",
-      .short_opt     = NULL,
-      .long_opt      = NULL,
+      .short_opt     = MY_SOPT MY_SOPT_IKE MY_SOPT_ALL_IKE,
+      .long_opt      = MY_LOPTS( MY_LOPT_ALL_IKE MY_LOPT_IKE ),
       .arg_min       = 0,
       .arg_max       = 0,
-      .func_exec     = NULL,
+      .func_exec     = &my_widget_counters,
       .func_usage    = NULL,
    },
 
