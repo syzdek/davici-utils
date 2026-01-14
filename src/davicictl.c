@@ -467,7 +467,7 @@ static my_widget_t my_widget_map[] =
       .func_usage    = NULL,
    },
 
-   // install widget (TODO)
+   // install widget
    {  .name          = "install",
       .aliases       = NULL,
       .desc          = "installs a CHILD_SA's 'trap, drop or bypass policy",
@@ -475,11 +475,11 @@ static my_widget_t my_widget_map[] =
       .davici_event  = NULL,
       .flags         = 0,
       .usage         = "[OPTIONS]",
-      .short_opt     = NULL,
-      .long_opt      = NULL,
+      .short_opt     = MY_SOPT MY_SOPT_CHILD MY_SOPT_IKE,
+      .long_opt      = MY_LOPTS( MY_LOPT_CHILD MY_LOPT_IKE ),
       .arg_min       = 0,
       .arg_max       = 0,
-      .func_exec     = NULL,
+      .func_exec     = &my_widget_generic_command,
       .func_usage    = NULL,
    },
 
