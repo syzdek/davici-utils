@@ -65,6 +65,9 @@
 ///////////////////
 // MARK: - Definitions
 
+#undef   MY_SECTS_MAX_DEPTH
+#define  MY_SECTS_MAX_DEPTH      128
+
 
 //////////////
 //          //
@@ -691,15 +694,17 @@ my_parse_res_xml(
          int                           is_event )
 {
    int               rc;
+   int               i;
    char              val[4096];
    const char *      key;
    unsigned          level;
-   char *            sects[128];
+   char *            sects[MY_SECTS_MAX_DEPTH];
 
    if (!(cnf))
       return(0);
 
-   memset(sects, 0, sizeof(sects));
+   for(i = 0; (i < MY_SECTS_MAX_DEPTH); i++)
+      sects[i] = NULL;
 
    // print JSON header
    if (!(cnf->res_last_name))
@@ -807,7 +812,7 @@ my_parse_res_xml_sect_free(
          char **                       sections )
 {
    int i;
-   for(i = 0; (i < 128); i++)
+   for(i = 0; (i < MY_SECTS_MAX_DEPTH); i++)
    {  if ((sections[i]))
          free(sections[i]);
       sections[i] = NULL;
@@ -823,7 +828,7 @@ my_parse_res_xml_sect_set(
          int                           level,
          const char *                  sect )
 {
-   assert(level < 128);
+   assert(level < MY_SECTS_MAX_DEPTH);
 
    if ((sects[level]))
       free(sects[level]);
