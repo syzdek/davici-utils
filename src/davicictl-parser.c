@@ -734,7 +734,6 @@ my_parse_res_xml(
             break;
 
          case DAVICI_SECTION_END:
-            key = davici_get_name(res);
             my_parse_res_xml_delim(cnf, level-1);
             printf("</%s>", sects[level-1]);
             break;
@@ -773,7 +772,6 @@ my_parse_res_xml(
             break;
 
          case DAVICI_LIST_END:
-            key = davici_get_name(res);
             my_parse_res_xml_delim(cnf, level-1);
             printf("</%s>", sects[level-1]);
             break;
@@ -828,7 +826,7 @@ my_parse_res_xml_sect_set(
    assert(level < 128);
 
    if ((sects[level]))
-      sects[level] = NULL;
+      free(sects[level]);
 
    if ((sects[level] = strdup(sect)) == NULL)
    {  fprintf(stderr, "%s: strdup(): %s\n", my_prog_name(cnf), strerror(errno));
