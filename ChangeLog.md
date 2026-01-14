@@ -3,6 +3,9 @@ Davici Utilities for Strongswan
 Copyright (C) 2026 David M. Syzdek <david@syzdek.net>.  
 All rights reserved.  
 
+0.3
+   - davicictl: fixing misc memory leaks
+   
 0.2 2026-01-14
    - fixing command/event transitions in JSON output.
    
