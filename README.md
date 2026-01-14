@@ -124,6 +124,18 @@ using beautified XML:
        </version-reply>
     </vici>
 
+The following example queues the "version" command and displays the response
+using YAML:
+
+    $ davicictl version -O xml
+    ---
+    version-reply:
+       daemon: charon
+       version: 5.9.14
+       sysname: Linux
+       release: 6.12.19-akcom-1_acs
+       machine: x86_64
+
 
 Maintainers
 ===========
