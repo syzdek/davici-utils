@@ -67,6 +67,8 @@
 #define  MY_SOPT_ALL_IKE      "a"
 #define  MY_SOPT_CHILD        "c:"
 #define  MY_SOPT_CHILD_ID     "C:"
+#define  MY_SOPT_COMMAND      "e:"
+#define  MY_SOPT_EVENT        "E:"
 #define  MY_SOPT_IKE          "i:"
 #define  MY_SOPT_IKE_ID       "I:"
 #define  MY_SOPT_NOBLOCK      "n"
@@ -83,6 +85,8 @@
 #define  MY_LOPT_ALL_IKE      { "all",             no_argument,         NULL, 'a' },
 #define  MY_LOPT_CHILD        { "child",           required_argument,   NULL, 'c' },
 #define  MY_LOPT_CHILD_ID     { "child-id",        required_argument,   NULL, 'C' },
+#define  MY_LOPT_COMMAND      { "command",         required_argument,   NULL, 'e' },
+#define  MY_LOPT_EVENT        { "event",           required_argument,   NULL, 'E' },
 #define  MY_LOPT_IKE          { "ike",             required_argument,   NULL, 'i' },
 #define  MY_LOPT_IKE_ID       { "ike-id",          required_argument,   NULL, 'I' },
 #define  MY_LOPT_NOBLOCK      { "noblock",         no_argument,         NULL, 'n' },
@@ -677,6 +681,22 @@ static my_widget_t my_widget_map[] =
       .func_usage    = NULL,
    },
 
+   // raw widget
+   {  .name          = "raw",
+      .aliases       = NULL,
+      .desc          = "queues a command or event to the vici control socket",
+      .davici_cmd    = NULL,
+      .davici_event  = NULL,
+      .flags         = MY_FLG_STREAM,
+      .usage         = "[OPTIONS] [ <key> <value> ] [ <key> <value> ] ... [ <key> <value> ]",
+      .short_opt     = MY_SOPT MY_SOPT_COMMAND MY_SOPT_EVENT,
+      .long_opt      = MY_LOPTS( MY_LOPT_COMMAND MY_LOPT_EVENT ),
+      .arg_min       = 0,
+      .arg_max       = -1,
+      .func_exec     = &my_widget_raw,
+      .func_usage    = NULL,
+   },
+
    // redirect widget (TODO)
    {  .name          = "redirect",
       .aliases       = NULL,
@@ -1028,6 +1048,14 @@ my_arguments(
             cnf->child_sa = optarg;
             break;
 
+         case 'E':
+            cnf->alt_event = optarg;
+            break;
+
+         case 'e':
+            cnf->alt_command = optarg;
+            break;
+
          case 'h':
             my_usage(cnf);
             return(-1);
@@ -1328,19 +1356,21 @@ my_usage(
    {  printf("Usage: %s %s\n", cnf->prog_name, widget_help);
    };
    printf("OPTIONS:\n");
-   if ((strchr(short_opt, 'a'))) printf("  -a --all                  all IKE connections and IKE SA\n");
-   if ((strchr(short_opt, 'C'))) printf("  -C id, --child-id=id      filter CHILD_SAs by unique identifier\n");
-   if ((strchr(short_opt, 'c'))) printf("  -c name, --child=name     filter CHILD_SAs by name\n");
-   if ((strchr(short_opt, 'h'))) printf("  -h, --help                print this help and exit\n");
-   if ((strchr(short_opt, 'I'))) printf("  -I id, --ike-id=id        filter IKE_SAs by unique identifier\n");
-   if ((strchr(short_opt, 'i'))) printf("  -i name, --ike=name       filter IKE_SAs by name\n");
-   if ((strchr(short_opt, 'n'))) printf("  -n, --noblock             don't wait for IKE_SAs in use\n");
-   if ((strchr(short_opt, 'O'))) printf("  -O fmt, --out-format=fmt  output format (json, vici, xml, or yaml)\n");
-   if ((strchr(short_opt, 'P'))) printf("  -P, --pretty              beautify response messages\n");
-   if ((strchr(short_opt, 'q'))) printf("  -q, --quiet, --silent     do not print messages\n");
-   if ((strchr(short_opt, 'u'))) printf("  -u path, --socket=path    path to vici socket\n");
-   if ((strchr(short_opt, 'V'))) printf("  -V, --version             print version number and exit\n");
-   if ((strchr(short_opt, 'v'))) printf("  -v, --verbose             print verbose messages\n");
+   if ((strchr(short_opt, 'a'))) printf("  -a         --all             all IKE connections and IKE SA\n");
+   if ((strchr(short_opt, 'C'))) printf("  -C id,     --child-id=id     filter CHILD_SAs by unique identifier\n");
+   if ((strchr(short_opt, 'c'))) printf("  -c name,   --child=name      filter CHILD_SAs by name\n");
+   if ((strchr(short_opt, 'E'))) printf("  -E str,    --event=str       vici event to register\n");
+   if ((strchr(short_opt, 'e'))) printf("  -e str,    --command=str     vici command to queue\n");
+   if ((strchr(short_opt, 'h'))) printf("  -h,        --help            print this help and exit\n");
+   if ((strchr(short_opt, 'I'))) printf("  -I id,     --ike-id=id       filter IKE_SAs by unique identifier\n");
+   if ((strchr(short_opt, 'i'))) printf("  -i name,   --ike=name        filter IKE_SAs by name\n");
+   if ((strchr(short_opt, 'n'))) printf("  -n,        --noblock         don't wait for IKE_SAs in use\n");
+   if ((strchr(short_opt, 'O'))) printf("  -O fmt,    --out-format=fmt  output format (json, vici, xml, or yaml)\n");
+   if ((strchr(short_opt, 'P'))) printf("  -P,        --pretty          beautify response messages\n");
+   if ((strchr(short_opt, 'q'))) printf("  -q,        --quiet, --silent do not print messages\n");
+   if ((strchr(short_opt, 'u'))) printf("  -u path,   --socket=path     path to vici socket\n");
+   if ((strchr(short_opt, 'V'))) printf("  -V,        --version         print version number and exit\n");
+   if ((strchr(short_opt, 'v'))) printf("  -v,        --verbose         print verbose messages\n");
    if (!(cnf->widget))
    {  printf("WIDGETS:\n");
       for(pos = 0; my_widget_map[pos].name != NULL; pos++)

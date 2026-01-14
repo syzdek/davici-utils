@@ -131,6 +131,8 @@ struct _my_config
    const char *                  prog_name;
    const char *                  vici_sockpath;
    const char *                  res_last_name;
+   const char *                  alt_command;
+   const char *                  alt_event;
    const char *                  ike_sa;
    const char *                  ike_sa_id;
    const char *                  child_sa;
@@ -258,6 +260,11 @@ my_parse_res(
 
 extern int
 my_widget_counters(
+         my_config_t *                 cnf );
+
+
+extern int
+my_widget_raw(
          my_config_t *                 cnf );
 
 
