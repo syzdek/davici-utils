@@ -282,6 +282,10 @@ my_widget_counters(
 
 
 extern int
+my_widget_diagnostics(
+         my_config_t *                 cnf );
+
+extern int
 my_widget_raw(
          my_config_t *                 cnf );
 

@@ -289,6 +289,22 @@ static my_widget_t my_widget_map[] =
       .func_usage    = NULL,
    },
 
+   // diagnostics widget
+   {  .name          = "diagnostics",
+      .aliases       = NULL,
+      .desc          = "retreieves various diagnostics information",
+      .davici_cmd    = "NONE",
+      .davici_event  = NULL,
+      .flags         = 0,
+      .usage         = "[OPTIONS]",
+      .short_opt     = MY_SOPT   MY_SOPT_IKE,
+      .long_opt      = MY_LOPTS( MY_LOPT_IKE ),
+      .arg_min       = 0,
+      .arg_max       = 0,
+      .func_exec     = &my_widget_diagnostics,
+      .func_usage    = NULL,
+   },
+
    // flush-certs widget (TODO)
    {  .name          = "flush-certs",
       .aliases       = NULL,
