@@ -204,6 +204,11 @@ my_widget_generic_event(
          my_config_t *                 cnf );
 
 
+static int
+my_widget_generic_unload(
+         my_config_t *                 cnf );
+
+
 /////////////////
 //             //
 //  Variables  //
@@ -828,7 +833,7 @@ static my_widget_t my_widget_map[] =
       .func_usage    = NULL,
    },
 
-   // unload-authority widget (TODO)
+   // unload-authority widget
    {  .name          = "unload-authority",
       .aliases       = NULL,
       .desc          = "unloads a certification authority into the daemon",
@@ -836,11 +841,11 @@ static my_widget_t my_widget_map[] =
       .davici_event  = NULL,
       .flags         = 0,
       .usage         = "[OPTIONS]",
-      .short_opt     = NULL,
-      .long_opt      = NULL,
+      .short_opt     = MY_SOPT   MY_SOPT_NAME,
+      .long_opt      = MY_LOPTS( MY_LOPT_NAME ),
       .arg_min       = 0,
       .arg_max       = 0,
-      .func_exec     = NULL,
+      .func_exec     = &my_widget_generic_unload,
       .func_usage    = NULL,
    },
 
@@ -1685,6 +1690,52 @@ my_widget_generic_event(
    {  fprintf(stderr, "%s: %s\n",  my_prog_name(cnf), strerror(-rc));
       return(1);
    };
+
+   if ((my_poll(cnf)))
+      return(1);
+
+   return(0);
+}
+
+
+int
+my_widget_generic_unload(
+         my_config_t *                 cnf )
+{
+   int                     rc;
+   const my_widget_t *     widget;
+
+   if (!(cnf))
+      return(1);
+   widget   = cnf->widget;
+
+   if (!(cnf->opt_name))
+   {  fprintf(stderr, "%s: missing required option `-n'\n", my_prog_name(cnf));
+      fprintf(stderr, "Try `%s --help' for more information.\n",  my_prog_name(cnf));
+      return(1);
+   };
+
+   // initialize new command
+   my_verbose(cnf, "initializing vici command \"%s\" ...\n", widget->davici_cmd);
+   rc = davici_new_cmd(widget->davici_cmd, &cnf->davici_req);
+   if (rc < 0)
+   {  fprintf(stderr, "%s: %s\n", my_prog_name(cnf), strerror(-rc));
+      return(1);
+   };
+
+   // add arguments
+   davici_kv(cnf->davici_req, "name", cnf->opt_name, (unsigned)strlen(cnf->opt_name));
+
+   // queue command
+   my_verbose(cnf, "queueing vici command \"%s\" ...\n", widget->davici_cmd);
+   rc = davici_queue(cnf->davici_conn, cnf->davici_req, my_davici_cb_command, cnf);
+   if (rc < 0)
+   {  fprintf(stderr, "%s: %s\n", my_prog_name(cnf), strerror(-rc));
+      my_verbose(cnf, "canceling vici command \"%s\" ...\n", widget->davici_cmd);
+      davici_cancel(cnf->davici_req);
+      return(1);
+   };
+   cnf->queued++;
 
    if ((my_poll(cnf)))
       return(1);

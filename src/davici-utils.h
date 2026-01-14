@@ -291,4 +291,9 @@ my_widget_rekey(
          my_config_t *                 cnf );
 
 
+extern int
+my_widget_unload_authority(
+         my_config_t *                 cnf );
+
+
 #endif /* end of header */
