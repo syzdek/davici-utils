@@ -881,7 +881,7 @@ static my_widget_t my_widget_map[] =
       .func_usage    = NULL,
    },
 
-   // unload-pool widget (TODO)
+   // unload-pool widget
    {  .name          = "unload-pool",
       .aliases       = NULL,
       .desc          = "unloads a virtual IP and attribute pool.",
@@ -889,11 +889,11 @@ static my_widget_t my_widget_map[] =
       .davici_event  = NULL,
       .flags         = 0,
       .usage         = "[OPTIONS]",
-      .short_opt     = NULL,
-      .long_opt      = NULL,
+      .short_opt     = MY_SOPT   MY_SOPT_NAME,
+      .long_opt      = MY_LOPTS( MY_LOPT_NAME ),
       .arg_min       = 0,
       .arg_max       = 0,
-      .func_exec     = NULL,
+      .func_exec     = &my_widget_generic_unload,
       .func_usage    = NULL,
    },
 
