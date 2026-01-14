@@ -454,7 +454,8 @@ my_parse_res_json(
       cnf->last_was_item = 0;
    } else
    {  if ( (!(cnf->res_last_name)) || ((strcasecmp(name, cnf->res_last_name))) )
-      {  my_parse_res_json_delim(cnf, 0);
+      {  cnf->last_was_item = 0;
+         my_parse_res_json_delim(cnf, 0);
          if ((cnf->res_last_name))
          {  printf("}");
             cnf->last_was_item = 1;
