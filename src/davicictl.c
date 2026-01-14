@@ -64,6 +64,7 @@
 // MARK: - Definitions
 
 #define  MY_SOPT              "hO:Pqu:Vv"
+#define  MY_SOPT_ALL_IKE      "a"
 #define  MY_SOPT_CHILD        "c:"
 #define  MY_SOPT_CHILD_ID     "C:"
 #define  MY_SOPT_IKE          "i:"
@@ -79,6 +80,7 @@
                               { "version",         no_argument,         NULL, 'V' }, \
                               { "verbose",         no_argument,         NULL, 'v' }, \
                               { NULL, 0, NULL, 0 }
+#define  MY_LOPT_ALL_IKE      { "all",             no_argument,         NULL, 'a' },
 #define  MY_LOPT_CHILD        { "child",           required_argument,   NULL, 'c' },
 #define  MY_LOPT_CHILD_ID     { "child-id",        required_argument,   NULL, 'C' },
 #define  MY_LOPT_IKE          { "ike",             required_argument,   NULL, 'i' },
@@ -323,7 +325,7 @@ static my_widget_t my_widget_map[] =
       .func_usage    = NULL,
    },
 
-   // get-counters widget (TODO)
+   // get-counters widget
    {  .name          = "get-counters",
       .aliases       = NULL,
       .desc          = "Lists global or connection-specific counters",
@@ -331,11 +333,11 @@ static my_widget_t my_widget_map[] =
       .davici_event  = NULL,
       .flags         = 0,
       .usage         = "[OPTIONS]",
-      .short_opt     = NULL,
-      .long_opt      = NULL,
+      .short_opt     = MY_SOPT MY_SOPT_IKE MY_SOPT_ALL_IKE,
+      .long_opt      = MY_LOPTS( MY_LOPT_ALL_IKE MY_LOPT_IKE ),
       .arg_min       = 0,
       .arg_max       = 0,
-      .func_exec     = NULL,
+      .func_exec     = &my_widget_get_counters,
       .func_usage    = NULL,
    },
 
@@ -1014,6 +1016,10 @@ my_arguments(
          case 0:        /* long options toggles */
          break;
 
+         case 'a':
+            cnf->flags |= MY_FLG_ALL_IKE;
+            break;
+
          case 'C':
             cnf->child_sa_id = optarg;
             break;
@@ -1322,6 +1328,7 @@ my_usage(
    {  printf("Usage: %s %s\n", cnf->prog_name, widget_help);
    };
    printf("OPTIONS:\n");
+   if ((strchr(short_opt, 'a'))) printf("  -a --all                  all IKE connections and IKE SA\n");
    if ((strchr(short_opt, 'C'))) printf("  -C id, --child-id=id      filter CHILD_SAs by unique identifier\n");
    if ((strchr(short_opt, 'c'))) printf("  -c name, --child=name     filter CHILD_SAs by name\n");
    if ((strchr(short_opt, 'h'))) printf("  -h, --help                print this help and exit\n");

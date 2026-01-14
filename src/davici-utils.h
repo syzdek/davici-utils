@@ -96,6 +96,7 @@
 #define MY_FLG_NOBLOCK        0x00000001
 #define MY_FLG_PRETTY         0x00000002
 #define MY_FLG_STREAM         0x00000004
+#define MY_FLG_ALL_IKE        0x00000008
 
 #define MY_FMT_DEFAULT        0x00000000
 #define MY_FMT_DEBUG          0x00000001
@@ -256,7 +257,8 @@ my_parse_res(
 #pragma mark widgets prototypes
 
 extern int
-my_widget_list_sas(
+my_widget_get_counters(
          my_config_t *                 cnf );
+
 
 #endif /* end of header */
