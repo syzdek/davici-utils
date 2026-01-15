@@ -338,11 +338,12 @@ my_parse_res_debug(
    my_strlcat(title, (((is_event)) ? "Event" : "Reply"), sizeof(title));
    my_parse_res_debug_print(0, title, name, NULL);
 
-   level = davici_get_level(res);
+   level = davici_get_level(res)+1;
 
    while((rc = davici_parse(res)) >= 0)
    {  switch(rc)
       {  case DAVICI_END:
+            my_parse_res_debug_print(level-1, "DAVICI_END", NULL, NULL);
             return(0);
 
          case DAVICI_SECTION_START:
@@ -386,7 +387,7 @@ my_parse_res_debug(
             my_parse_res_debug_print(level, "UNKNOWN", NULL, NULL);
             break;
       };
-      level = davici_get_level(res);
+      level = davici_get_level(res)+1;
    };
 
    return(rc);
@@ -406,7 +407,7 @@ my_parse_res_debug_print(
    my_strlcat(buff, ":",   sizeof(buff));
 
    if (!(key))
-      return(printf("%-24s\n", buff));
+      return(printf("%s\n", buff));
    if (!(val))
       return(printf("%-24s%*s%s\n", buff, (level*3), "", key));
    return(printf("%-24s%*s%s = \"%s\"\n", buff, (level*3), "", key, val));
