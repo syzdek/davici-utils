@@ -137,7 +137,7 @@ struct _my_config
    char * const *                argv;
    const char *                  prog_name;
    const char *                  vici_sockpath;
-   const char *                  res_last_name;
+   char *                        res_last_name;
    const char *                  alt_command;
    const char *                  alt_event;
    const char *                  ike_sa;

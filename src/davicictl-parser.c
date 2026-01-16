@@ -470,7 +470,13 @@ my_parse_res_json(
       };
    };
 
-   cnf->res_last_name = name;
+   if ( (!(cnf->res_last_name)) || ((strcasecmp(name, cnf->res_last_name))) )
+   {  free(cnf->res_last_name);
+      if ((cnf->res_last_name = strdup(name)) == NULL)
+      {  fprintf(stderr, "%s: out of virtual memory\n", my_prog_name(cnf));
+         return(-errno);
+      };
+   };
 
    level = davici_get_level(res) + 1;
 
@@ -717,7 +723,13 @@ my_parse_res_xml(
    my_parse_res_xml_delim(cnf, 0);
    printf("<%s-%s>", name, (((is_event)) ? "event" : "reply"));
 
-   cnf->res_last_name = name;
+   if ( (!(cnf->res_last_name)) || ((strcasecmp(name, cnf->res_last_name))) )
+   {  free(cnf->res_last_name);
+      if ((cnf->res_last_name = strdup(name)) == NULL)
+      {  fprintf(stderr, "%s: out of virtual memory\n", my_prog_name(cnf));
+         return(-errno);
+      };
+   };
 
    level = davici_get_level(res) + 1;
 
@@ -875,7 +887,13 @@ my_parse_res_yaml(
             );
    };
 
-   cnf->res_last_name = name;
+   if ( (!(cnf->res_last_name)) || ((strcasecmp(name, cnf->res_last_name))) )
+   {  free(cnf->res_last_name);
+      if ((cnf->res_last_name = strdup(name)) == NULL)
+      {  fprintf(stderr, "%s: out of virtual memory\n", my_prog_name(cnf));
+         return(-errno);
+      };
+   };
 
    level = davici_get_level(res) + 1;
 
