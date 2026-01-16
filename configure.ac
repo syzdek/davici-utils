@@ -35,7 +35,7 @@ AC_PREREQ([2.65])
 
 AC_COPYRIGHT([Copyright (C) 2026 David M. Syzdek <david@syzdek.net>.])
 AC_REVISION(0.1)
-AC_INIT([Davici Utilities for Strongswan],[0.2],[david@syzdek.net],[davici-utils],[https://github.com/syzdek/davici-utils/])
+AC_INIT([Davici Utilities for Strongswan],[0.3],[david@syzdek.net],[davici-utils],[https://github.com/syzdek/davici-utils/])
 
 AC_SUBST([RELEASE_MONTH],["January 2026"])
 
